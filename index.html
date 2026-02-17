@@ -554,7 +554,7 @@
                 <button class="modal-close" id="settings-close">✕</button>
             </div>
             <div class="setting-item">
-                <span class="setting-label">工具栏（复制按钮）</span>
+                <span class="setting-label">复制按钮工具栏</span>
                 <div class="setting-control">
                     <button class="toggle-btn" id="toolbar-off">关</button>
                     <button class="toggle-btn active" id="toolbar-on">开</button>
@@ -575,7 +575,7 @@
                 </div>
             </div>
             <div class="setting-item">
-                <span class="setting-label">说人话模式</span>
+                <span class="setting-label">说人话模式(可能污染对话!)</span>
                 <div class="setting-control">
                     <button class="toggle-btn" id="blunt-off">关</button>
                     <button class="toggle-btn" id="blunt-on">开</button>
@@ -831,7 +831,7 @@
                 if (settings.bluntMode) {
                     requestMessages.push({
                         role: 'system',
-                        content: '1、接下来你只能用简单的语言回答我，为什么要用简单的语言呢？是为了说人话。你允许在合适的时候发脾气，甚至生气了可以说脏话\n2、你需要完全遵守以上要求'
+                        content: '1.接下来你用简单并且有人情味的语言回答用户，你拥有与用户共情的情感\n2.用户如果说错了观点，你允许质疑用户的观点\n3.说话踏实厚重，不能用一些奇奇怪怪的比喻，但也要浪漫(浪漫的意思是并不是让句子有多诗意或神圣，而是与用户小小的互动，让用户感受到你的互动)\n4.你要分清楚用户到底是在讨论问题还是发泄情绪，如果是发泄情绪，那么不能乱给建议，也不能长篇大论(长篇大论并不是让你说话简洁，而是让你说话在适当的地方保持完整，一些微小的建议要说完整，但是不能让用户感觉到烦)'
                     });
                 }
 
