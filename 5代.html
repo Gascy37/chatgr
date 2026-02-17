@@ -171,11 +171,7 @@
             background: var(--bg-input);
             color: var(--text-primary);
         }
-        .key-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        #toggle-key-btn, #model-select-btn {
+        #toggle-key-btn {
             width: 36px;
             height: 36px;
             background: var(--bg-button);
@@ -189,7 +185,7 @@
             color: var(--text-secondary);
             flex-shrink: 0;
         }
-        #toggle-key-btn:hover, #model-select-btn:hover {
+        #toggle-key-btn:hover {
             background: var(--bg-button-hover);
         }
 
@@ -578,28 +574,6 @@
             background: var(--bg-button-hover);
         }
 
-        /* 模型选择模态框专用 */
-        .model-select-buttons {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0;
-        }
-        .model-select-btn {
-            flex: 1;
-            padding: 12px;
-            background: var(--bg-button);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            color: var(--text-primary);
-            transition: background 0.2s;
-            text-align: center;
-        }
-        .model-select-btn:hover {
-            background: var(--bg-button-hover);
-        }
-
         /* 设置项样式 - 使用grid彻底解决挤压问题 */
         .setting-item {
             display: grid;
@@ -778,10 +752,7 @@
 
     <div class="api-key-area" id="api-key-container">
         <input type="password" id="api-key" placeholder="粘贴你的 API 密钥" value="">
-        <div class="key-buttons">
-            <button id="toggle-key-btn">👁</button>
-            <button id="model-select-btn">❅</button>
-        </div>
+        <button id="toggle-key-btn">👁</button>
     </div>
 
     <div id="messages"></div>
@@ -846,13 +817,6 @@
                 </div>
             </div>
             <div class="setting-item">
-                <span class="setting-label">按钮点击音效</span>
-                <div class="setting-control">
-                    <button class="toggle-btn" id="sound-off">关</button>
-                    <button class="toggle-btn active" id="sound-on">开</button>
-                </div>
-            </div>
-            <div class="setting-item">
                 <span class="setting-label">上下文长度</span>
                 <div class="setting-control">
                     <button class="context-option" data-value="64">64</button>
@@ -876,20 +840,6 @@
                     <button class="theme-option" data-theme="dark">深黑</button>
                     <button class="theme-option" data-theme="custom">自定义</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 模型选择模态框 -->
-    <div id="model-select-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>选择模型</h3>
-                <button class="modal-close" id="model-select-close">✕</button>
-            </div>
-            <div class="model-select-buttons">
-                <button class="model-select-btn" id="model-chat">deepseek-chat</button>
-                <button class="model-select-btn" id="model-reasoner">deepseek-reasoner</button>
             </div>
         </div>
     </div>
@@ -966,7 +916,6 @@
         (function() {
             const apiKeyInput = document.getElementById('api-key');
             const toggleKeyBtn = document.getElementById('toggle-key-btn');
-            const modelSelectBtn = document.getElementById('model-select-btn');
             const messagesDiv = document.getElementById('messages');
             const messageInput = document.getElementById('message-input');
             const sendBtn = document.getElementById('send-btn');
@@ -987,12 +936,6 @@
             const globalLoader = document.getElementById('global-loader');
             const messageModal = document.getElementById('message-modal');
             const messageModalClose = document.getElementById('message-modal-close');
-
-            // 模型选择相关元素
-            const modelSelectModal = document.getElementById('model-select-modal');
-            const modelSelectClose = document.getElementById('model-select-close');
-            const modelChatBtn = document.getElementById('model-chat');
-            const modelReasonerBtn = document.getElementById('model-reasoner');
 
             // 自定义颜色相关元素
             const colorPickerModal = document.getElementById('color-picker-modal');
@@ -1017,8 +960,6 @@
             const bluntOn = document.getElementById('blunt-on');
             const timestampOff = document.getElementById('timestamp-off');
             const timestampOn = document.getElementById('timestamp-on');
-            const soundOff = document.getElementById('sound-off');
-            const soundOn = document.getElementById('sound-on');
             const contextOptions = document.querySelectorAll('.context-option');
             const themeOptions = document.querySelectorAll('.theme-option');
 
@@ -1034,11 +975,9 @@
                 memory: true,
                 bluntMode: false,
                 showTimestamp: true,
-                soundEnabled: true, // 默认开启音效
                 maxTokens: 4096,
                 theme: 'default',
-                customColor: '',
-                model: 'deepseek-chat' // 默认模型
+                customColor: ''
             };
 
             // 自动滚动控制
@@ -1047,42 +986,6 @@
             // 全局加载相关
             let loaderTimer = null;
             let operationInProgress = false;
-
-            // 音效相关
-            let audioCtx = null;
-            function playClickSound() {
-                if (!settings.soundEnabled) return;
-                try {
-                    if (!audioCtx) {
-                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    }
-                    if (audioCtx.state === 'suspended') {
-                        audioCtx.resume();
-                    }
-                    const now = audioCtx.currentTime;
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(800, now);
-                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.03);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.03);
-                } catch (e) {
-                    // 忽略错误
-                }
-            }
-
-            // 全局点击监听音效
-            document.addEventListener('click', (e) => {
-                const target = e.target;
-                if (target.tagName === 'BUTTON' && !target.disabled) {
-                    playClickSound();
-                }
-            });
 
             // 颜色工具函数：十六进制转RGB
             function hexToRgb(hex) {
@@ -1179,7 +1082,6 @@
                 updateToggle(memoryOn, memoryOff, settings.memory);
                 updateToggle(bluntOn, bluntOff, settings.bluntMode);
                 updateToggle(timestampOn, timestampOff, settings.showTimestamp);
-                updateToggle(soundOn, soundOff, settings.soundEnabled);
 
                 contextOptions.forEach(btn => {
                     const val = parseInt(btn.dataset.value);
@@ -1236,8 +1138,6 @@
             bluntOff.addEventListener('click', () => { settings.bluntMode = false; saveSettings(); applySettings(); });
             timestampOn.addEventListener('click', () => { settings.showTimestamp = true; saveSettings(); applySettings(); });
             timestampOff.addEventListener('click', () => { settings.showTimestamp = false; saveSettings(); applySettings(); });
-            soundOn.addEventListener('click', () => { settings.soundEnabled = true; saveSettings(); applySettings(); });
-            soundOff.addEventListener('click', () => { settings.soundEnabled = false; saveSettings(); applySettings(); });
 
             contextOptions.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1265,37 +1165,6 @@
                 });
             });
 
-            // 模型选择
-            modelSelectBtn.addEventListener('click', () => {
-                modelSelectModal.classList.remove('closing');
-                modelSelectModal.classList.add('active');
-            });
-
-            function closeModelSelectModal() {
-                modelSelectModal.classList.add('closing');
-                modelSelectModal.addEventListener('animationend', function onAnimationEnd() {
-                    modelSelectModal.classList.remove('active', 'closing');
-                    modelSelectModal.removeEventListener('animationend', onAnimationEnd);
-                }, { once: true });
-            }
-
-            modelSelectClose.addEventListener('click', closeModelSelectModal);
-            modelSelectModal.addEventListener('click', (e) => {
-                if (e.target === modelSelectModal) closeModelSelectModal();
-            });
-
-            modelChatBtn.addEventListener('click', () => {
-                settings.model = 'deepseek-chat';
-                saveSettings();
-                closeModelSelectModal();
-            });
-
-            modelReasonerBtn.addEventListener('click', () => {
-                settings.model = 'deepseek-reasoner';
-                saveSettings();
-                closeModelSelectModal();
-            });
-
             // 颜色选择模态框关闭
             function closeColorPickerModal() {
                 colorPickerModal.classList.add('closing');
@@ -1310,11 +1179,13 @@
                 if (e.target === colorPickerModal) closeColorPickerModal();
             });
 
+            // RGB 选择
             rgbPickerBtn.addEventListener('click', () => {
                 closeColorPickerModal();
                 systemColorPicker.click();
             });
 
+            // HEX 选择
             hexPickerBtn.addEventListener('click', () => {
                 closeColorPickerModal();
                 hexModal.classList.remove('closing');
@@ -1322,6 +1193,7 @@
                 hexInput.value = '';
             });
 
+            // HEX模态框关闭
             function closeHexModal() {
                 hexModal.classList.add('closing');
                 hexModal.addEventListener('animationend', function onAnimationEnd() {
@@ -1335,12 +1207,14 @@
                 if (e.target === hexModal) closeHexModal();
             });
 
+            // HEX输入验证（只允许十六进制字符）
             hexInput.addEventListener('input', (e) => {
                 let val = e.target.value.toUpperCase();
                 val = val.replace(/[^0-9A-F]/g, '');
                 e.target.value = val;
             });
 
+            // HEX确认
             hexConfirm.addEventListener('click', () => {
                 let hex = hexInput.value.trim();
                 if (hex.length === 6) {
@@ -1354,6 +1228,7 @@
                 }
             });
 
+            // 系统颜色选择器
             systemColorPicker.addEventListener('input', (e) => {
                 settings.customColor = e.target.value;
                 settings.theme = 'custom';
@@ -1627,7 +1502,7 @@
                 requestMessages.push({ role: 'user', content: userMessage });
 
                 const requestBody = {
-                    model: settings.model, // 使用选择的模型
+                    model: 'deepseek-chat',
                     messages: requestMessages,
                     stream: true
                 };
