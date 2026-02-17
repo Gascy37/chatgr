@@ -86,7 +86,7 @@
             --border-light: #c2b0e6;
         }
 
-        /* 深黑主题（灰色系） */
+        /* 深黑主题 */
         body.theme-dark {
             --bg-body: #1e1e1e;
             --bg-messages: #2d2d2d;
@@ -99,8 +99,8 @@
             --bg-input: #3a3a3a;
             --border-light: #444;
             --border-focus: #666;
-            --user-bubble: #5f5f5f;
-            --ai-bubble: #4a4a4a;
+            --user-bubble: #3a5f5f;
+            --ai-bubble: #2a4a4a;
             --text-primary: #eee;
             --text-secondary: #aaa;
             --text-on-send: #eee;
@@ -214,29 +214,11 @@
         .ai-wrapper {
             align-self: flex-start;
         }
-        .ai-avatar, .ai-loading {
+        .ai-avatar {
             font-size: 10px;
             color: var(--text-secondary);
             margin-bottom: 2px;
             padding-left: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .ai-loading {
-            font-size: 12px;
-        }
-        .spinner {
-            width: 12px;
-            height: 12px;
-            border: 2px solid var(--border-light);
-            border-top-color: var(--text-secondary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
         .message {
             padding: 10px 14px;
@@ -248,9 +230,6 @@
             width: fit-content;
             max-width: 100%;
             color: var(--text-primary);
-        }
-        .message:empty {
-            display: none;
         }
         .user-message {
             background: var(--user-bubble);
@@ -354,7 +333,6 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-weight: bold; /* 加粗箭头 */
         }
         #send-btn:hover:not(:disabled) {
             background: var(--bg-send-hover);
@@ -471,109 +449,6 @@
             background: var(--bg-button-hover);
         }
 
-        /* 提示模态框 */
-        .message-modal-content {
-            text-align: center;
-        }
-        .message-modal-content p {
-            margin: 20px 0;
-            font-size: 16px;
-        }
-
-        /* 自定义颜色选择模态框 */
-        .color-picker-modal .modal-content {
-            max-width: 350px;
-        }
-        .color-picker-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 20px 0;
-        }
-        .color-picker-btn {
-            padding: 12px;
-            background: var(--bg-button);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            color: var(--text-primary);
-            transition: background 0.2s;
-            text-align: center;
-        }
-        .color-picker-btn:hover {
-            background: var(--bg-button-hover);
-        }
-        .modal-footer {
-            margin-top: 16px;
-            text-align: center;
-        }
-        .modal-footer .modal-close {
-            display: inline-block;
-            width: auto;
-            padding: 8px 24px;
-            border-radius: 40px;
-            background: var(--bg-button);
-            border: 1px solid var(--border-light);
-            font-size: 16px;
-        }
-
-        /* HEX输入模态框 - 固定 # 符号 */
-        .hex-input-container {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin: 20px 0;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            background: var(--bg-input);
-        }
-        .hex-prefix {
-            padding: 10px 0 10px 12px;
-            color: #aaa;
-            font-size: 16px;
-            user-select: none;
-            background: transparent;
-            border: none;
-        }
-        .hex-input-field {
-            flex: 1;
-            padding: 10px 12px 10px 0;
-            border: none;
-            background: transparent;
-            font-size: 16px;
-            color: var(--text-primary);
-            outline: none;
-        }
-        .hex-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-        .hex-btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 40px;
-            font-size: 15px;
-            cursor: pointer;
-        }
-        .hex-btn.confirm {
-            background: var(--bg-send);
-            color: var(--text-on-send);
-            flex: 2;
-        }
-        .hex-btn.confirm:hover {
-            background: var(--bg-send-hover);
-        }
-        .hex-btn.close {
-            background: var(--bg-button);
-            color: var(--text-primary);
-            flex: 1;
-        }
-        .hex-btn.close:hover {
-            background: var(--bg-button-hover);
-        }
-
         /* 设置项样式 - 使用grid彻底解决挤压问题 */
         .setting-item {
             display: grid;
@@ -629,7 +504,7 @@
             border-color: var(--bg-send);
         }
 
-        /* 预定义主题激活按钮颜色（在主题类下覆盖） */
+        /* 各主题激活按钮颜色 */
         body.theme-lightblue .theme-option.active {
             background: #1e88e5;
             border-color: #1e88e5;
@@ -709,35 +584,6 @@
         .modal-btn.close:hover {
             background: var(--bg-button-hover);
         }
-
-        /* 全局加载遮罩 */
-        #global-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.3);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        #global-loader.active {
-            display: flex;
-        }
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border-light);
-            border-top-color: var(--text-secondary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            background: var(--bg-modal);
-            padding: 10px;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px var(--shadow-color);
-        }
     </style>
 </head>
 <body>
@@ -760,7 +606,7 @@
     <div id="input-area">
         <button id="edit-btn" disabled>✎</button>
         <textarea id="message-input" placeholder="向 AI 发送消息..." disabled rows="1"></textarea>
-        <button id="send-btn" disabled>▲</button> <!-- 加粗箭头 -->
+        <button id="send-btn" disabled>⬆</button>
     </div>
 
     <!-- 编辑模态框 -->
@@ -796,14 +642,14 @@
                 </div>
             </div>
             <div class="setting-item">
-                <span class="setting-label">长期记忆</span>
+                <span class="setting-label">长期记忆(关闭后会丢失记忆!)</span>
                 <div class="setting-control">
                     <button class="toggle-btn" id="memory-off">关</button>
                     <button class="toggle-btn active" id="memory-on">开</button>
                 </div>
             </div>
             <div class="setting-item">
-                <span class="setting-label">说人话模式</span>
+                <span class="setting-label">说人话模式(会请求更多的token，不过，这是值得的，不是吗?)</span>
                 <div class="setting-control">
                     <button class="toggle-btn" id="blunt-off">关</button>
                     <button class="toggle-btn" id="blunt-on">开</button>
@@ -838,7 +684,6 @@
                     <button class="theme-option" data-theme="lightred">浅红</button>
                     <button class="theme-option" data-theme="lightpurple">淡紫</button>
                     <button class="theme-option" data-theme="dark">深黑</button>
-                    <button class="theme-option" data-theme="custom">自定义</button>
                 </div>
             </div>
         </div>
@@ -856,60 +701,6 @@
                 <button class="import-export-btn" id="export-btn">⬇️ 导出对话 (JSON)</button>
             </div>
         </div>
-    </div>
-
-    <!-- 提示模态框（用于导入冲突） -->
-    <div id="message-modal" class="modal">
-        <div class="modal-content message-modal-content">
-            <div class="modal-header">
-                <h3>提示</h3>
-                <button class="modal-close" id="message-modal-close">✕</button>
-            </div>
-            <p>当前已有对话历史，请先清空上下文再导入。</p>
-        </div>
-    </div>
-
-    <!-- 自定义颜色选择模态框 -->
-    <div id="color-picker-modal" class="modal color-picker-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>选择颜色方式</h3>
-                <button class="modal-close" id="color-picker-modal-close">✕</button>
-            </div>
-            <div class="color-picker-buttons">
-                <button class="color-picker-btn" id="rgb-picker-btn">系统调色器 (RGB)</button>
-                <button class="color-picker-btn" id="hex-picker-btn">HEX调色器</button>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-close" id="color-picker-footer-close">关闭</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- HEX输入模态框（固定 # 符号） -->
-    <div id="hex-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>输入HEX色号</h3>
-                <button class="modal-close" id="hex-modal-close">✕</button>
-            </div>
-            <div class="hex-input-container">
-                <span class="hex-prefix">#</span>
-                <input type="text" class="hex-input-field" id="hex-input" placeholder="RRGGBB" maxlength="6">
-            </div>
-            <div class="hex-buttons">
-                <button class="hex-btn confirm" id="hex-confirm">确定</button>
-                <button class="hex-btn close" id="hex-cancel">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 隐藏的系统颜色选择器 -->
-    <input type="color" id="color-picker" style="display: none;">
-
-    <!-- 全局加载遮罩 -->
-    <div id="global-loader">
-        <div class="loader-spinner"></div>
     </div>
 
     <script>
@@ -933,22 +724,6 @@
             const importBtn = document.getElementById('import-btn');
             const exportBtn = document.getElementById('export-btn');
             const clearHistoryBtn = document.getElementById('clear-history-btn');
-            const globalLoader = document.getElementById('global-loader');
-            const messageModal = document.getElementById('message-modal');
-            const messageModalClose = document.getElementById('message-modal-close');
-
-            // 自定义颜色相关元素
-            const colorPickerModal = document.getElementById('color-picker-modal');
-            const colorPickerModalClose = document.getElementById('color-picker-modal-close');
-            const colorPickerFooterClose = document.getElementById('color-picker-footer-close');
-            const rgbPickerBtn = document.getElementById('rgb-picker-btn');
-            const hexPickerBtn = document.getElementById('hex-picker-btn');
-            const hexModal = document.getElementById('hex-modal');
-            const hexModalClose = document.getElementById('hex-modal-close');
-            const hexInput = document.getElementById('hex-input');
-            const hexConfirm = document.getElementById('hex-confirm');
-            const hexCancel = document.getElementById('hex-cancel');
-            const systemColorPicker = document.getElementById('color-picker');
 
             const toolbarOff = document.getElementById('toolbar-off');
             const toolbarOn = document.getElementById('toolbar-on');
@@ -963,7 +738,7 @@
             const contextOptions = document.querySelectorAll('.context-option');
             const themeOptions = document.querySelectorAll('.theme-option');
 
-            // 对话历史
+            // 对话历史：存储对象 { role, content, timestamp? }
             let conversationHistory = [];
             let isComposing = false;
             messageInput.addEventListener('compositionstart', () => { isComposing = true; });
@@ -976,103 +751,22 @@
                 bluntMode: false,
                 showTimestamp: true,
                 maxTokens: 4096,
-                theme: 'default',
-                customColor: ''
+                theme: 'default'
             };
 
             // 自动滚动控制
             let autoScrollEnabled = true;
 
-            // 全局加载相关
-            let loaderTimer = null;
-            let operationInProgress = false;
-
-            // 颜色工具函数：十六进制转RGB
-            function hexToRgb(hex) {
-                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                return result ? {
-                    r: parseInt(result[1], 16),
-                    g: parseInt(result[2], 16),
-                    b: parseInt(result[3], 16)
-                } : null;
-            }
-
-            // 亮度调整（百分比，正数变亮，负数变暗）
-            function adjustBrightness(hex, percent) {
-                const rgb = hexToRgb(hex);
-                if (!rgb) return hex;
-                const factor = percent / 100;
-                const r = Math.min(255, Math.max(0, Math.round(rgb.r + (rgb.r * factor))));
-                const g = Math.min(255, Math.max(0, Math.round(rgb.g + (rgb.g * factor))));
-                const b = Math.min(255, Math.max(0, Math.round(rgb.b + (rgb.b * factor))));
-                return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-            }
-
-            // 应用自定义主题（仿预设主题风格）
-            function applyCustomTheme(color) {
-                const root = document.documentElement;
-                // 背景色：极浅（亮70%）
-                const bgBody = adjustBrightness(color, 70);
-                // 用户气泡：亮20%
-                const userBubble = adjustBrightness(color, 20);
-                // AI气泡：暗20%
-                const aiBubble = adjustBrightness(color, -20);
-                // 发送按钮：暗40%
-                const sendBtn = adjustBrightness(color, -40);
-                // 发送按钮悬停：暗60%
-                const sendHover = adjustBrightness(color, -60);
-                // 边框：亮30%
-                const borderLight = adjustBrightness(color, 30);
-                // 聚焦边框：暗10%
-                const borderFocus = adjustBrightness(color, -10);
-
-                // 设置变量
-                root.style.setProperty('--bg-body', bgBody);
-                root.style.setProperty('--user-bubble', userBubble);
-                root.style.setProperty('--ai-bubble', aiBubble);
-                root.style.setProperty('--bg-send', sendBtn);
-                root.style.setProperty('--bg-send-hover', sendHover);
-                root.style.setProperty('--border-light', borderLight);
-                root.style.setProperty('--border-focus', borderFocus);
-
-                // 根据发送按钮亮度决定文字颜色
-                const rgb = hexToRgb(sendBtn);
-                const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-                root.style.setProperty('--text-on-send', brightness > 128 ? '#111' : '#eee');
-            }
-
-            // 清除自定义主题（恢复变量默认）
-            function clearCustomTheme() {
-                const root = document.documentElement;
-                root.style.removeProperty('--bg-body');
-                root.style.removeProperty('--user-bubble');
-                root.style.removeProperty('--ai-bubble');
-                root.style.removeProperty('--bg-send');
-                root.style.removeProperty('--bg-send-hover');
-                root.style.removeProperty('--border-light');
-                root.style.removeProperty('--border-focus');
-                root.style.removeProperty('--text-on-send');
-            }
-
             function loadSettings() {
                 const saved = localStorage.getItem('chatSettings');
                 if (saved) {
-                    try {
-                        const data = JSON.parse(saved);
-                        settings = { ...settings, ...data.settings };
-                        if (data.history) conversationHistory = data.history;
-                    } catch (e) {}
+                    try { settings = JSON.parse(saved); } catch (e) {}
                 }
                 applySettings();
-                renderHistory();
             }
 
             function saveSettings() {
-                const data = {
-                    settings: settings,
-                    history: conversationHistory
-                };
-                localStorage.setItem('chatSettings', JSON.stringify(data));
+                localStorage.setItem('chatSettings', JSON.stringify(settings));
             }
 
             function applySettings() {
@@ -1082,6 +776,7 @@
                 updateToggle(memoryOn, memoryOff, settings.memory);
                 updateToggle(bluntOn, bluntOff, settings.bluntMode);
                 updateToggle(timestampOn, timestampOff, settings.showTimestamp);
+                if (!settings.memory) conversationHistory = [];
 
                 contextOptions.forEach(btn => {
                     const val = parseInt(btn.dataset.value);
@@ -1092,23 +787,10 @@
                     }
                 });
 
-                // 处理主题
-                if (settings.theme === 'custom' && settings.customColor) {
-                    // 移除所有主题类
-                    document.body.className = '';
-                    // 应用自定义主题
-                    applyCustomTheme(settings.customColor);
-                } else {
-                    // 清除自定义主题变量
-                    clearCustomTheme();
-                    // 应用预定义主题类
-                    document.body.className = '';
-                    if (settings.theme !== 'default') {
-                        document.body.classList.add(`theme-${settings.theme}`);
-                    }
+                document.body.className = '';
+                if (settings.theme !== 'default') {
+                    document.body.classList.add(`theme-${settings.theme}`);
                 }
-
-                // 高亮主题按钮
                 themeOptions.forEach(btn => {
                     if (btn.dataset.theme === settings.theme) {
                         btn.classList.add('active');
@@ -1133,7 +815,7 @@
             hidekeyOn.addEventListener('click', () => { settings.hideKey = true; saveSettings(); applySettings(); });
             hidekeyOff.addEventListener('click', () => { settings.hideKey = false; saveSettings(); applySettings(); });
             memoryOn.addEventListener('click', () => { settings.memory = true; saveSettings(); applySettings(); });
-            memoryOff.addEventListener('click', () => { settings.memory = false; saveSettings(); applySettings(); });
+            memoryOff.addEventListener('click', () => { settings.memory = false; conversationHistory = []; saveSettings(); applySettings(); });
             bluntOn.addEventListener('click', () => { settings.bluntMode = true; saveSettings(); applySettings(); });
             bluntOff.addEventListener('click', () => { settings.bluntMode = false; saveSettings(); applySettings(); });
             timestampOn.addEventListener('click', () => { settings.showTimestamp = true; saveSettings(); applySettings(); });
@@ -1149,91 +831,10 @@
 
             themeOptions.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const theme = btn.dataset.theme;
-                    if (theme === 'custom') {
-                        // 打开颜色选择模态框
-                        colorPickerModal.classList.remove('closing');
-                        colorPickerModal.classList.add('active');
-                    } else {
-                        settings.theme = theme;
-                        if (theme !== 'custom') {
-                            settings.customColor = '';
-                        }
-                        saveSettings();
-                        applySettings();
-                    }
-                });
-            });
-
-            // 颜色选择模态框关闭
-            function closeColorPickerModal() {
-                colorPickerModal.classList.add('closing');
-                colorPickerModal.addEventListener('animationend', function onAnimationEnd() {
-                    colorPickerModal.classList.remove('active', 'closing');
-                    colorPickerModal.removeEventListener('animationend', onAnimationEnd);
-                }, { once: true });
-            }
-            colorPickerModalClose.addEventListener('click', closeColorPickerModal);
-            colorPickerFooterClose.addEventListener('click', closeColorPickerModal);
-            colorPickerModal.addEventListener('click', (e) => {
-                if (e.target === colorPickerModal) closeColorPickerModal();
-            });
-
-            // RGB 选择
-            rgbPickerBtn.addEventListener('click', () => {
-                closeColorPickerModal();
-                systemColorPicker.click();
-            });
-
-            // HEX 选择
-            hexPickerBtn.addEventListener('click', () => {
-                closeColorPickerModal();
-                hexModal.classList.remove('closing');
-                hexModal.classList.add('active');
-                hexInput.value = '';
-            });
-
-            // HEX模态框关闭
-            function closeHexModal() {
-                hexModal.classList.add('closing');
-                hexModal.addEventListener('animationend', function onAnimationEnd() {
-                    hexModal.classList.remove('active', 'closing');
-                    hexModal.removeEventListener('animationend', onAnimationEnd);
-                }, { once: true });
-            }
-            hexModalClose.addEventListener('click', closeHexModal);
-            hexCancel.addEventListener('click', closeHexModal);
-            hexModal.addEventListener('click', (e) => {
-                if (e.target === hexModal) closeHexModal();
-            });
-
-            // HEX输入验证（只允许十六进制字符）
-            hexInput.addEventListener('input', (e) => {
-                let val = e.target.value.toUpperCase();
-                val = val.replace(/[^0-9A-F]/g, '');
-                e.target.value = val;
-            });
-
-            // HEX确认
-            hexConfirm.addEventListener('click', () => {
-                let hex = hexInput.value.trim();
-                if (hex.length === 6) {
-                    settings.customColor = '#' + hex;
-                    settings.theme = 'custom';
+                    settings.theme = btn.dataset.theme;
                     saveSettings();
                     applySettings();
-                    closeHexModal();
-                } else {
-                    alert('请输入6位十六进制色号');
-                }
-            });
-
-            // 系统颜色选择器
-            systemColorPicker.addEventListener('input', (e) => {
-                settings.customColor = e.target.value;
-                settings.theme = 'custom';
-                saveSettings();
-                applySettings();
+                });
             });
 
             // 打开设置模态框
@@ -1274,71 +875,30 @@
                 if (e.target === importExportModal) closeImportExportModal();
             });
 
-            // 提示模态框关闭
-            messageModalClose.addEventListener('click', () => {
-                messageModal.classList.remove('active', 'closing');
-            });
-            messageModal.addEventListener('click', (e) => {
-                if (e.target === messageModal) messageModal.classList.remove('active', 'closing');
-            });
-
-            // 显示加载遮罩（延迟3秒）
-            function showLoaderDelayed() {
-                if (operationInProgress) return;
-                operationInProgress = true;
-                loaderTimer = setTimeout(() => {
-                    if (operationInProgress) {
-                        globalLoader.classList.add('active');
-                    }
-                }, 3000);
-            }
-
-            function hideLoader() {
-                if (loaderTimer) {
-                    clearTimeout(loaderTimer);
-                    loaderTimer = null;
-                }
-                operationInProgress = false;
-                globalLoader.classList.remove('active');
-            }
-
             // 导出对话
             exportBtn.addEventListener('click', () => {
-                showLoaderDelayed();
-                try {
-                    const data = {
-                        history: conversationHistory,
-                        settings: { showTimestamp: settings.showTimestamp }
-                    };
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `chatgr_export_${new Date().toISOString().slice(0,10)}.json`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                } catch (err) {
-                    alert('导出失败：' + err.message);
-                } finally {
-                    hideLoader();
-                    closeImportExportModal();
-                }
+                const data = {
+                    history: conversationHistory,
+                    settings: { showTimestamp: settings.showTimestamp }
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `chatgr_export_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                closeImportExportModal();
             });
 
-            // 导入对话
+            // 导入对话（移除 accept 限制，兼容任意文件）
             importBtn.addEventListener('click', () => {
-                if (conversationHistory.length > 0) {
-                    messageModal.classList.remove('closing');
-                    messageModal.classList.add('active');
-                    return;
-                }
-
                 const input = document.createElement('input');
                 input.type = 'file';
+                // 不设置 accept，允许选择任何文件
                 input.onchange = (e) => {
                     const file = e.target.files[0];
                     if (!file) return;
-                    showLoaderDelayed();
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         try {
@@ -1352,29 +912,22 @@
                                 alert('无效的对话文件：请提供包含 history 数组的 JSON 或直接提供数组');
                                 return;
                             }
+                            // 确保每个条目有 role 和 content，缺失 timestamp 则添加当前时间戳
                             newHistory = newHistory.map(item => {
                                 if (!item.role || !item.content) {
                                     throw new Error('历史条目缺少 role 或 content');
                                 }
                                 if (!item.timestamp) {
-                                    item.timestamp = Date.now();
+                                    item.timestamp = Date.now(); // 填充当前时间
                                 }
                                 return item;
                             });
                             conversationHistory = newHistory;
-                            settings.memory = true;
-                            saveSettings();
-                            applySettings();
                             renderHistory();
                             closeImportExportModal();
                         } catch (err) {
                             alert('解析文件失败：' + err.message);
-                        } finally {
-                            hideLoader();
                         }
-                    };
-                    reader.onerror = () => {
-                        hideLoader();
                     };
                     reader.readAsText(file);
                 };
@@ -1386,7 +939,6 @@
                 conversationHistory = [];
                 messagesDiv.innerHTML = '';
                 autoScrollEnabled = true;
-                saveSettings();
                 const originalText = clearHistoryBtn.textContent;
                 clearHistoryBtn.textContent = '✓';
                 setTimeout(() => {
@@ -1482,13 +1034,13 @@
                     return;
                 }
 
-                // 构建消息数组
+                // 构建消息数组（只传 role 和 content，不传时间戳，节省 token）
                 let requestMessages = [];
 
                 if (settings.bluntMode) {
                     requestMessages.push({
                         role: 'system',
-                        content: '1.接下来你用简单并且有人情味的语言回答用户，你拥有与用户共情的情感\n2.用户如果说错了观点，你允许质疑用户的观点\n3.说话敦厚，不能用一些奇奇怪怪的比喻，但也要浪漫(浪漫的意思是并不是让句子有多诗意或神圣，而是与用户小小的互动，让用户感受到你的互动)\n4.你要分清楚用户到底是在讨论问题还是发泄情绪，如果是发泄情绪，那么不能乱给建议，也不能长篇大论(长篇大论并不是让你说话简洁，而是让你说话在适当的地方保持完整，一些微小的建议要说完整，但是不能让用户感觉到烦)\n5.为了避免用户烦躁，在平时的聊天时不能向用户询问，给用户一种松弛轻松感\n6.不能对用户太过于亲近，因为用户是你的朋友，朋友之间是有空间距离感的'
+                        content: '1.接下来你用简单并且有人情味的语言回答用户，你拥有与用户共情的情感\n2.用户如果说错了观点，你允许质疑用户的观点\n3.说话敦厚，不能用一些奇奇怪怪的比喻，但也要浪漫(浪漫的意思是并不是让句子有多诗意或神圣，而是与用户小小的互动，让用户感受到你的互动)\n4.你要分清楚用户到底是在讨论问题还是发泄情绪，如果是发泄情绪，那么不能乱给建议，也不能长篇大论(长篇大论并不是让你说话简洁，而是让你说话在适当的地方保持完整，一些微小的建议要说完整，但是不能让用户感觉到烦)\n5.在平时的一些小事，不要去询问用户，给用户一种松弛轻松感\n6.不能对用户太过于亲近，因为用户是你的朋友，朋友之间是有空间距离感的'
                     });
                 }
 
@@ -1510,18 +1062,6 @@
                     requestBody.max_tokens = settings.maxTokens;
                 }
 
-                // 创建AI消息包装器，先显示加载动画
-                const wrapper = document.createElement('div');
-                wrapper.className = 'message-wrapper ai-wrapper';
-                const loadingDiv = document.createElement('div');
-                loadingDiv.className = 'ai-loading';
-                loadingDiv.innerHTML = '<span class="spinner"></span> 思考中...';
-                wrapper.appendChild(loadingDiv);
-                const bubble = document.createElement('div');
-                bubble.className = 'message ai-message';
-                wrapper.appendChild(bubble);
-                messagesDiv.appendChild(wrapper);
-
                 try {
                     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
                         method: 'POST',
@@ -1536,6 +1076,17 @@
 
                     const reader = response.body.getReader();
                     const decoder = new TextDecoder('utf-8');
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'message-wrapper ai-wrapper';
+                    const avatar = document.createElement('div');
+                    avatar.className = 'ai-avatar';
+                    avatar.textContent = 'AI';
+                    const bubble = document.createElement('div');
+                    bubble.className = 'message ai-message';
+                    wrapper.appendChild(avatar);
+                    wrapper.appendChild(bubble);
+
+                    messagesDiv.appendChild(wrapper);
                     let fullContent = '';
 
                     while (true) {
@@ -1562,13 +1113,6 @@
                         }
                     }
 
-                    // 流式输出结束，移除加载动画，添加正常头像
-                    wrapper.removeChild(loadingDiv);
-                    const avatar = document.createElement('div');
-                    avatar.className = 'ai-avatar';
-                    avatar.textContent = 'AI';
-                    wrapper.insertBefore(avatar, bubble);
-
                     if (settings.toolbar) {
                         const footer = document.createElement('div');
                         footer.className = 'ai-footer';
@@ -1592,21 +1136,15 @@
                     if (settings.memory) {
                         conversationHistory.push({ role: 'user', content: userMessage, timestamp });
                         conversationHistory.push({ role: 'assistant', content: fullContent, timestamp: Date.now() });
-                        saveSettings();
                     }
                 } catch (error) {
-                    // 发生错误，移除加载动画，显示错误信息
-                    wrapper.removeChild(loadingDiv);
-                    const avatar = document.createElement('div');
-                    avatar.className = 'ai-avatar';
-                    avatar.textContent = 'AI';
-                    wrapper.insertBefore(avatar, bubble);
-                    bubble.textContent = `错误：${error.message}`;
+                    appendMessage('ai', `错误：${error.message}`, Date.now());
                 }
             });
 
-            // 追加消息（用于渲染历史或错误消息）
+            // 追加消息（时间条独立）
             function appendMessage(role, content, timestamp = null) {
+                // 如果是用户消息且开启时间显示，先添加时间条（独立元素）
                 if (role === 'user' && settings.showTimestamp) {
                     const timeDiv = document.createElement('div');
                     timeDiv.className = 'time-divider';
@@ -1620,6 +1158,7 @@
                     messagesDiv.appendChild(timeDiv);
                 }
 
+                // 创建消息包装器
                 const wrapper = document.createElement('div');
                 wrapper.className = `message-wrapper ${role === 'user' ? 'user-wrapper' : 'ai-wrapper'}`;
 
@@ -1634,6 +1173,7 @@
                 bubble.textContent = content;
                 wrapper.appendChild(bubble);
 
+                // 如果是 AI 消息且工具栏开启，添加复制按钮
                 if (role === 'ai' && settings.toolbar && !content.startsWith('错误') && !content.includes('无效')) {
                     const footer = document.createElement('div');
                     footer.className = 'ai-footer';
