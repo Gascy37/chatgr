@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGR_AI聊天工具</title>
+    <title>ChatGR_D老师聊天工具</title>
     <style>
         /* ========== 全局CSS变量 ========== */
         :root {
@@ -24,7 +24,6 @@
             --text-secondary: #666;
             --text-on-send: white;
             --shadow-color: rgba(0,0,0,0.05);
-            --message-font-size: 15px;
         }
 
         /* 浅蓝主题 */
@@ -172,7 +171,11 @@
             background: var(--bg-input);
             color: var(--text-primary);
         }
-        #toggle-key-btn {
+        .key-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        #toggle-key-btn, #model-select-btn {
             width: 36px;
             height: 36px;
             background: var(--bg-button);
@@ -186,7 +189,7 @@
             color: var(--text-secondary);
             flex-shrink: 0;
         }
-        #toggle-key-btn:hover {
+        #toggle-key-btn:hover, #model-select-btn:hover {
             background: var(--bg-button-hover);
         }
 
@@ -203,8 +206,6 @@
             flex-direction: column;
             gap: 12px;
             position: relative;
-            -webkit-overflow-scrolling: touch;
-            will-change: scroll-position;
         }
         .message-wrapper {
             display: flex;
@@ -243,41 +244,17 @@
         }
         .message {
             padding: 8px 12px;
+            border-radius: 12px;
             line-height: 1.5;
             word-wrap: break-word;
             white-space: pre-wrap;
-            font-size: var(--message-font-size);
+            font-size: 15px;
             width: fit-content;
             max-width: 100%;
             color: var(--text-primary);
         }
         .message:empty {
             display: none;
-        }
-
-        /* 对话框样式 */
-        body.style-bubble .user-message, body.style-bubble .ai-message {
-            border-radius: 12px;
-        }
-        body.style-bubble .user-message {
-            background: var(--user-bubble);
-            border-bottom-right-radius: 4px;
-        }
-        body.style-bubble .ai-message {
-            background: var(--ai-bubble);
-            border-bottom-left-radius: 4px;
-        }
-        body.style-android .user-message, body.style-android .ai-message {
-            border-radius: 4px;
-        }
-        body.style-android .user-message {
-            background: var(--user-bubble);
-        }
-        body.style-android .ai-message {
-            background: var(--ai-bubble);
-        }
-        .user-message, .ai-message {
-            border-radius: 12px;
         }
         .user-message {
             background: var(--user-bubble);
@@ -286,9 +263,9 @@
         .ai-message {
             background: var(--ai-bubble);
             border-bottom-left-radius: 4px;
+            position: relative;
         }
-
-        /* 打字光标 */
+        /* 普通打字光标 */
         .ai-message.typing::after {
             content: '|';
             display: inline-block;
@@ -297,6 +274,7 @@
             font-weight: normal;
             color: currentColor;
         }
+        /* 高亮光标 */
         .ai-message.typing.highlight::after {
             color: var(--cursor-color, currentColor);
             text-shadow: 0 0 3px var(--cursor-color, currentColor);
@@ -320,9 +298,8 @@
             justify-content: flex-start;
             margin-top: 4px;
             margin-left: 4px;
-            gap: 8px;
         }
-        .copy-btn, .fullscreen-btn {
+        .copy-btn {
             width: 28px;
             height: 28px;
             background: transparent;
@@ -336,7 +313,7 @@
             color: var(--text-secondary);
             transition: all 0.2s;
         }
-        .copy-btn:hover, .fullscreen-btn:hover {
+        .copy-btn:hover {
             background: var(--bg-button-hover);
             border-color: var(--border-focus);
         }
@@ -355,7 +332,7 @@
             height: 36px;
             background: var(--bg-button);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 18px;
             font-size: 18px;
             cursor: pointer;
             display: flex;
@@ -478,8 +455,7 @@
         }
         .modal-header h3 {
             margin: 0;
-            font-weight: 400;
-            font-size: 1.2rem;
+            font-weight: 500;
         }
         .modal-close {
             width: 32px;
@@ -498,44 +474,23 @@
             background: var(--bg-button-hover);
         }
 
-        /* 全屏文本模态框 */
-        #fullscreen-text-modal .modal-content {
-            width: 90%;
-            max-width: 800px;
-            height: 85vh;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-        .fullscreen-text-content {
-            flex: 1;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            padding: 12px;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            font-size: var(--message-font-size);
-            line-height: 1.5;
-        }
-
-        /* 设置模态框 */
+        /* 设置模态框专用：固定标题，滚动内容 */
         #settings-modal .modal-content {
             display: flex;
             flex-direction: column;
-            max-height: 80vh;
-            padding: 20px 20px 10px 20px;
+            max-height: 80vh; /* 限制最大高度 */
+            padding: 20px 20px 10px 20px; /* 底部内边距稍小 */
         }
         #settings-modal .modal-header {
-            flex-shrink: 0;
+            flex-shrink: 0; /* 防止压缩 */
         }
         .settings-scroll-area {
             overflow-y: auto;
-            padding-right: 4px;
+            padding-right: 4px; /* 为滚动条留点空间 */
             margin-bottom: 10px;
-            flex: 1;
+            flex: 1; /* 占用剩余空间 */
         }
+        /* 滚动条样式（可选） */
         .settings-scroll-area::-webkit-scrollbar {
             width: 6px;
         }
@@ -547,7 +502,7 @@
             border-radius: 3px;
         }
 
-        /* 导入导出模态框 */
+        /* 导入导出模态框专用 */
         .import-export-buttons {
             display: flex;
             flex-direction: column;
@@ -615,7 +570,7 @@
             font-size: 16px;
         }
 
-        /* HEX输入模态框 */
+        /* HEX输入模态框 - 固定 # 符号 */
         .hex-input-container {
             display: flex;
             align-items: center;
@@ -671,7 +626,35 @@
             background: var(--bg-button-hover);
         }
 
-        /* 设置项样式 */
+        /* 模型选择模态框专用 */
+        .model-select-buttons {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .model-select-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-button);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .model-select-btn:hover {
+            background: var(--bg-button-hover);
+        }
+        .model-select-btn.active {
+            background: var(--bg-send);
+            color: var(--text-on-send);
+            border-color: var(--bg-send);
+            box-shadow: 0 0 0 2px var(--border-focus);
+        }
+
+        /* 设置项样式 - 使用grid彻底解决挤压问题 */
         .setting-item {
             display: grid;
             grid-template-columns: auto 1fr;
@@ -700,7 +683,7 @@
             align-items: center;
         }
 
-        .toggle-btn, .context-option, .theme-option, .style-option {
+        .toggle-btn, .context-option, .theme-option {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -719,33 +702,14 @@
             text-align: center;
         }
 
-        .toggle-btn.active, .context-option.active, .theme-option.active, .style-option.active {
+        /* 默认激活样式 */
+        .toggle-btn.active, .context-option.active, .theme-option.active {
             background: var(--bg-send);
             color: var(--text-on-send);
             border-color: var(--bg-send);
         }
 
-        /* 字体大小输入框样式 */
-        #font-size-input {
-            width: 70px;
-            padding: 4px 8px;
-            border: 1px solid var(--border-light);
-            border-radius: 4px;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-size: 14px;
-            text-align: center;
-            transition: color 0.2s;
-        }
-        #font-size-input.invalid {
-            color: #ff4444; /* 红色提示 */
-        }
-        #font-size-input:focus {
-            outline: none;
-            border-color: var(--border-focus);
-        }
-
-        /* 预定义主题激活按钮颜色 */
+        /* 预定义主题激活按钮颜色（在主题类下覆盖） */
         body.theme-lightblue .theme-option.active {
             background: #1e88e5;
             border-color: #1e88e5;
@@ -788,7 +752,7 @@
             padding: 12px;
             border: 1px solid var(--border-light);
             border-radius: 12px;
-            font-size: var(--message-font-size);
+            font-size: 16px;
             font-family: inherit;
             resize: none;
             overflow-y: auto;
@@ -868,7 +832,10 @@
 
     <div class="api-key-area" id="api-key-container">
         <input type="password" id="api-key" placeholder="粘贴你的 API 密钥" value="">
-        <button id="toggle-key-btn">👁</button>
+        <div class="key-buttons">
+            <button id="toggle-key-btn">👁</button>
+            <button id="model-select-btn">❅</button>
+        </div>
     </div>
 
     <div id="messages"></div>
@@ -890,7 +857,7 @@
         </div>
     </div>
 
-    <!-- 设置模态框 -->
+    <!-- 设置模态框（固定标题，可滚动内容） -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -913,10 +880,17 @@
                     </div>
                 </div>
                 <div class="setting-item">
-                    <span class="setting-label">长期记忆</span>
+                    <span class="setting-label">长期记忆(关闭会丢失记忆!)</span>
                     <div class="setting-control">
                         <button class="toggle-btn" id="memory-off">关</button>
                         <button class="toggle-btn active" id="memory-on">开</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label">说人话模式(不推荐使用)</span>
+                    <div class="setting-control">
+                        <button class="toggle-btn" id="blunt-off">关</button>
+                        <button class="toggle-btn" id="blunt-on">开</button>
                     </div>
                 </div>
                 <div class="setting-item">
@@ -934,30 +908,17 @@
                     </div>
                 </div>
                 <div class="setting-item">
-                    <span class="setting-label">高亮输入光标</span>
+                    <span class="setting-label">高亮输入光标(影响性能!)</span>
                     <div class="setting-control">
                         <button class="toggle-btn" id="cursor-highlight-off">关</button>
                         <button class="toggle-btn active" id="cursor-highlight-on">开</button>
                     </div>
                 </div>
                 <div class="setting-item">
-                    <span class="setting-label">柔性输出</span>
+                    <span class="setting-label">柔性输出(影响性能!)</span>
                     <div class="setting-control">
                         <button class="toggle-btn" id="soft-output-off">关</button>
                         <button class="toggle-btn active" id="soft-output-on">开</button>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <span class="setting-label">对话框样式</span>
-                    <div class="setting-control">
-                        <button class="style-option active" data-style="bubble">气泡</button>
-                        <button class="style-option" data-style="android">安卓圆</button>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <span class="setting-label">字体大小 (10-160)</span>
-                    <div class="setting-control">
-                        <input type="number" id="font-size-input" min="10" max="160" value="100">
                     </div>
                 </div>
                 <div class="setting-item">
@@ -989,6 +950,20 @@
         </div>
     </div>
 
+    <!-- 模型选择模态框 -->
+    <div id="model-select-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>选择模型</h3>
+                <button class="modal-close" id="model-select-close">✕</button>
+            </div>
+            <div class="model-select-buttons">
+                <button class="model-select-btn" id="model-chat">deepseek-chat</button>
+                <button class="model-select-btn" id="model-reasoner">deepseek-reasoner</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 导入/导出模态框 -->
     <div id="import-export-modal" class="modal">
         <div class="modal-content">
@@ -1003,7 +978,7 @@
         </div>
     </div>
 
-    <!-- 提示模态框 -->
+    <!-- 提示模态框（用于导入冲突） -->
     <div id="message-modal" class="modal">
         <div class="modal-content message-modal-content">
             <div class="modal-header">
@@ -1031,7 +1006,7 @@
         </div>
     </div>
 
-    <!-- HEX输入模态框 -->
+    <!-- HEX输入模态框（固定 # 符号） -->
     <div id="hex-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1049,17 +1024,6 @@
         </div>
     </div>
 
-    <!-- 全屏文本模态框 -->
-    <div id="fullscreen-text-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>回复内容</h3>
-                <button class="modal-close" id="fullscreen-text-close">✕</button>
-            </div>
-            <div class="fullscreen-text-content" id="fullscreen-text-content"></div>
-        </div>
-    </div>
-
     <!-- 隐藏的系统颜色选择器 -->
     <input type="color" id="color-picker" style="display: none;">
 
@@ -1072,6 +1036,7 @@
         (function() {
             const apiKeyInput = document.getElementById('api-key');
             const toggleKeyBtn = document.getElementById('toggle-key-btn');
+            const modelSelectBtn = document.getElementById('model-select-btn');
             const messagesDiv = document.getElementById('messages');
             const messageInput = document.getElementById('message-input');
             const sendBtn = document.getElementById('send-btn');
@@ -1093,10 +1058,13 @@
             const messageModal = document.getElementById('message-modal');
             const messageModalClose = document.getElementById('message-modal-close');
 
-            const fullscreenTextModal = document.getElementById('fullscreen-text-modal');
-            const fullscreenTextClose = document.getElementById('fullscreen-text-close');
-            const fullscreenTextContent = document.getElementById('fullscreen-text-content');
+            // 模型选择相关元素
+            const modelSelectModal = document.getElementById('model-select-modal');
+            const modelSelectClose = document.getElementById('model-select-close');
+            const modelChatBtn = document.getElementById('model-chat');
+            const modelReasonerBtn = document.getElementById('model-reasoner');
 
+            // 自定义颜色相关元素
             const colorPickerModal = document.getElementById('color-picker-modal');
             const colorPickerModalClose = document.getElementById('color-picker-modal-close');
             const colorPickerFooterClose = document.getElementById('color-picker-footer-close');
@@ -1109,14 +1077,14 @@
             const hexCancel = document.getElementById('hex-cancel');
             const systemColorPicker = document.getElementById('color-picker');
 
-            const fontSizeInput = document.getElementById('font-size-input');
-
             const toolbarOff = document.getElementById('toolbar-off');
             const toolbarOn = document.getElementById('toolbar-on');
             const hidekeyOff = document.getElementById('hidekey-off');
             const hidekeyOn = document.getElementById('hidekey-on');
             const memoryOff = document.getElementById('memory-off');
             const memoryOn = document.getElementById('memory-on');
+            const bluntOff = document.getElementById('blunt-off');
+            const bluntOn = document.getElementById('blunt-on');
             const timestampOff = document.getElementById('timestamp-off');
             const timestampOn = document.getElementById('timestamp-on');
             const soundOff = document.getElementById('sound-off');
@@ -1125,10 +1093,10 @@
             const cursorHighlightOn = document.getElementById('cursor-highlight-on');
             const softOutputOff = document.getElementById('soft-output-off');
             const softOutputOn = document.getElementById('soft-output-on');
-            const styleOptions = document.querySelectorAll('.style-option');
             const contextOptions = document.querySelectorAll('.context-option');
             const themeOptions = document.querySelectorAll('.theme-option');
 
+            // 对话历史
             let conversationHistory = [];
             let isComposing = false;
             messageInput.addEventListener('compositionstart', () => { isComposing = true; });
@@ -1138,23 +1106,26 @@
                 toolbar: true,
                 hideKey: false,
                 memory: true,
+                bluntMode: false,
                 showTimestamp: true,
                 soundEnabled: true,
                 cursorHighlight: false,
                 softOutput: false,
-                dialogStyle: 'bubble',
-                fontSize: 100,
                 maxTokens: 4096,
                 theme: 'default',
                 customColor: '',
+                model: 'deepseek-chat',
                 apiKey: ''
             };
 
+            // 自动滚动控制
             let autoScrollEnabled = true;
 
+            // 全局加载相关
             let loaderTimer = null;
             let operationInProgress = false;
 
+            // 音效相关
             let audioCtx = null;
             function playClickSound() {
                 if (!settings.soundEnabled) return;
@@ -1180,6 +1151,7 @@
                 } catch (e) {}
             }
 
+            // 全局点击监听音效
             document.addEventListener('click', (e) => {
                 const target = e.target;
                 if (target.tagName === 'BUTTON' && !target.disabled) {
@@ -1187,6 +1159,7 @@
                 }
             });
 
+            // 颜色工具函数：十六进制转RGB
             function hexToRgb(hex) {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result ? {
@@ -1196,80 +1169,39 @@
                 } : null;
             }
 
-            function rgbToHsl(r, g, b) {
-                r /= 255; g /= 255; b /= 255;
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
-                let h, s, l = (max + min) / 2;
-
-                if (max === min) {
-                    h = s = 0;
-                } else {
-                    const d = max - min;
-                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                    switch (max) {
-                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                        case g: h = (b - r) / d + 2; break;
-                        case b: h = (r - g) / d + 4; break;
-                    }
-                    h /= 6;
-                }
-                return [h * 360, s * 100, l * 100];
+            // 亮度调整（百分比，正数变亮，负数变暗）
+            function adjustBrightness(hex, percent) {
+                const rgb = hexToRgb(hex);
+                if (!rgb) return hex;
+                const factor = percent / 100;
+                const r = Math.min(255, Math.max(0, Math.round(rgb.r + (rgb.r * factor))));
+                const g = Math.min(255, Math.max(0, Math.round(rgb.g + (rgb.g * factor))));
+                const b = Math.min(255, Math.max(0, Math.round(rgb.b + (rgb.b * factor))));
+                return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
             }
 
-            function hslToHex(h, s, l) {
-                l /= 100;
-                const a = s * Math.min(l, 1 - l) / 100;
-                const f = n => {
-                    const k = (n + h / 30) % 12;
-                    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-                    return Math.round(255 * color).toString(16).padStart(2, '0');
-                };
-                return `#${f(0)}${f(8)}${f(4)}`;
-            }
-
+            // 应用自定义主题
             function applyCustomTheme(color) {
-                const rgb = hexToRgb(color);
-                if (!rgb) return;
-                const [h, s, l] = rgbToHsl(rgb.r, rgb.g, rgb.b);
-
-                const bgSat = Math.max(0, s * 0.5);
-                const bgLight = Math.min(100, l + 20);
-                const bgColor = hslToHex(h, bgSat, bgLight);
-
-                const userSat = Math.max(0, s * 0.8);
-                const userLight = Math.min(100, l + 10);
-                const userColor = hslToHex(h, userSat, userLight);
-
-                const aiSat = Math.max(0, s * 0.7);
-                const aiLight = Math.max(0, l - 5);
-                const aiColor = hslToHex(h, aiSat, aiLight);
-
-                const sendLight = Math.max(0, l - 30);
-                const sendColor = hslToHex(h, s, sendLight);
-
-                const sendHoverLight = Math.max(0, sendLight - 20);
-                const sendHoverColor = hslToHex(h, s, sendHoverLight);
-
-                const borderLight = Math.min(100, l + 20);
-                const borderSat = Math.max(0, s * 0.6);
-                const borderColor = hslToHex(h, borderSat, borderLight);
-
-                const focusLight = Math.max(0, l - 10);
-                const focusColor = hslToHex(h, s, focusLight);
-
                 const root = document.documentElement;
-                root.style.setProperty('--bg-body', bgColor);
-                root.style.setProperty('--user-bubble', userColor);
-                root.style.setProperty('--ai-bubble', aiColor);
-                root.style.setProperty('--bg-send', sendColor);
-                root.style.setProperty('--bg-send-hover', sendHoverColor);
-                root.style.setProperty('--border-light', borderColor);
-                root.style.setProperty('--border-focus', focusColor);
+                const bgBody = adjustBrightness(color, 90);
+                const userBubble = adjustBrightness(color, 20);
+                const aiBubble = adjustBrightness(color, -10);
+                const sendBtn = adjustBrightness(color, -40);
+                const sendHover = adjustBrightness(color, -60);
+                const borderLight = adjustBrightness(color, 30);
+                const borderFocus = adjustBrightness(color, -10);
 
-                const sendRgb = hexToRgb(sendColor);
-                const sendBrightness = (sendRgb.r * 299 + sendRgb.g * 587 + sendRgb.b * 114) / 1000;
-                root.style.setProperty('--text-on-send', sendBrightness > 128 ? '#111' : '#eee');
+                root.style.setProperty('--bg-body', bgBody);
+                root.style.setProperty('--user-bubble', userBubble);
+                root.style.setProperty('--ai-bubble', aiBubble);
+                root.style.setProperty('--bg-send', sendBtn);
+                root.style.setProperty('--bg-send-hover', sendHover);
+                root.style.setProperty('--border-light', borderLight);
+                root.style.setProperty('--border-focus', borderFocus);
+
+                const rgb = hexToRgb(sendBtn);
+                const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+                root.style.setProperty('--text-on-send', brightness > 128 ? '#111' : '#eee');
             }
 
             function clearCustomTheme() {
@@ -1284,12 +1216,6 @@
                 root.style.removeProperty('--text-on-send');
             }
 
-            function updateFontSize(value) {
-                const clampedValue = Math.max(10, Math.min(160, value));
-                const fontSize = clampedValue / 100 * 15;
-                document.documentElement.style.setProperty('--message-font-size', fontSize + 'px');
-            }
-
             function loadSettings() {
                 const saved = localStorage.getItem('chatSettings');
                 if (saved) {
@@ -1302,15 +1228,6 @@
                 if (settings.apiKey) {
                     apiKeyInput.value = settings.apiKey;
                     setEnabled(settings.apiKey.startsWith('sk-'));
-                }
-                fontSizeInput.value = settings.fontSize;
-                // 检查字体大小是否有效，更新红色状态
-                const val = parseInt(fontSizeInput.value);
-                if (isNaN(val) || val < 10 || val > 160) {
-                    fontSizeInput.classList.add('invalid');
-                } else {
-                    fontSizeInput.classList.remove('invalid');
-                    updateFontSize(settings.fontSize);
                 }
                 applySettings();
                 renderHistory();
@@ -1330,24 +1247,11 @@
                 updateToggle(hidekeyOn, hidekeyOff, settings.hideKey);
                 document.getElementById('api-key-container').style.display = settings.hideKey ? 'none' : 'flex';
                 updateToggle(memoryOn, memoryOff, settings.memory);
+                updateToggle(bluntOn, bluntOff, settings.bluntMode);
                 updateToggle(timestampOn, timestampOff, settings.showTimestamp);
                 updateToggle(soundOn, soundOff, settings.soundEnabled);
                 updateToggle(cursorHighlightOn, cursorHighlightOff, settings.cursorHighlight);
                 updateToggle(softOutputOn, softOutputOff, settings.softOutput);
-
-                document.body.classList.remove('style-bubble', 'style-android');
-                if (settings.dialogStyle === 'bubble') {
-                    document.body.classList.add('style-bubble');
-                } else {
-                    document.body.classList.add('style-android');
-                }
-                styleOptions.forEach(btn => {
-                    if (btn.dataset.style === settings.dialogStyle) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                });
 
                 contextOptions.forEach(btn => {
                     const val = parseInt(btn.dataset.value);
@@ -1359,11 +1263,11 @@
                 });
 
                 if (settings.theme === 'custom' && settings.customColor) {
-                    document.body.className = document.body.className.replace(/theme-\S+/g, '').trim();
+                    document.body.className = '';
                     applyCustomTheme(settings.customColor);
                 } else {
                     clearCustomTheme();
-                    document.body.className = document.body.className.replace(/theme-\S+/g, '').trim();
+                    document.body.className = '';
                     if (settings.theme !== 'default') {
                         document.body.classList.add(`theme-${settings.theme}`);
                     }
@@ -1394,6 +1298,8 @@
             hidekeyOff.addEventListener('click', () => { settings.hideKey = false; saveSettings(); applySettings(); });
             memoryOn.addEventListener('click', () => { settings.memory = true; saveSettings(); applySettings(); });
             memoryOff.addEventListener('click', () => { settings.memory = false; saveSettings(); applySettings(); });
+            bluntOn.addEventListener('click', () => { settings.bluntMode = true; saveSettings(); applySettings(); });
+            bluntOff.addEventListener('click', () => { settings.bluntMode = false; saveSettings(); applySettings(); });
             timestampOn.addEventListener('click', () => { settings.showTimestamp = true; saveSettings(); applySettings(); });
             timestampOff.addEventListener('click', () => { settings.showTimestamp = false; saveSettings(); applySettings(); });
             soundOn.addEventListener('click', () => { settings.soundEnabled = true; saveSettings(); applySettings(); });
@@ -1402,53 +1308,6 @@
             cursorHighlightOff.addEventListener('click', () => { settings.cursorHighlight = false; saveSettings(); applySettings(); });
             softOutputOn.addEventListener('click', () => { settings.softOutput = true; saveSettings(); applySettings(); });
             softOutputOff.addEventListener('click', () => { settings.softOutput = false; saveSettings(); applySettings(); });
-
-            styleOptions.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    settings.dialogStyle = btn.dataset.style;
-                    saveSettings();
-                    applySettings();
-                });
-            });
-
-            // 字体大小输入事件
-            fontSizeInput.addEventListener('input', (e) => {
-                const val = e.target.value;
-                // 空值或非数字时，不更新字体大小，但保留输入
-                if (val === '') {
-                    fontSizeInput.classList.add('invalid');
-                    return;
-                }
-                const num = parseInt(val);
-                if (isNaN(num)) {
-                    fontSizeInput.classList.add('invalid');
-                    return;
-                }
-                if (num < 10 || num > 160) {
-                    fontSizeInput.classList.add('invalid');
-                } else {
-                    fontSizeInput.classList.remove('invalid');
-                    settings.fontSize = num;
-                    updateFontSize(num);
-                    saveSettings();
-                }
-            });
-
-            // 失去焦点时检查是否需要恢复显示值
-            fontSizeInput.addEventListener('blur', () => {
-                const val = fontSizeInput.value;
-                if (val === '') {
-                    fontSizeInput.value = settings.fontSize;
-                    fontSizeInput.classList.remove('invalid');
-                } else {
-                    const num = parseInt(val);
-                    if (isNaN(num) || num < 10 || num > 160) {
-                        // 保持红色显示，不改变设置
-                    } else {
-                        fontSizeInput.classList.remove('invalid');
-                    }
-                }
-            });
 
             contextOptions.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1475,6 +1334,45 @@
                 });
             });
 
+            // 模型选择
+            modelSelectBtn.addEventListener('click', () => {
+                if (settings.model === 'deepseek-chat') {
+                    modelChatBtn.classList.add('active');
+                    modelReasonerBtn.classList.remove('active');
+                } else {
+                    modelReasonerBtn.classList.add('active');
+                    modelChatBtn.classList.remove('active');
+                }
+                modelSelectModal.classList.remove('closing');
+                modelSelectModal.classList.add('active');
+            });
+
+            function closeModelSelectModal() {
+                modelSelectModal.classList.add('closing');
+                modelSelectModal.addEventListener('animationend', function onAnimationEnd() {
+                    modelSelectModal.classList.remove('active', 'closing');
+                    modelSelectModal.removeEventListener('animationend', onAnimationEnd);
+                }, { once: true });
+            }
+
+            modelSelectClose.addEventListener('click', closeModelSelectModal);
+            modelSelectModal.addEventListener('click', (e) => {
+                if (e.target === modelSelectModal) closeModelSelectModal();
+            });
+
+            modelChatBtn.addEventListener('click', () => {
+                settings.model = 'deepseek-chat';
+                saveSettings();
+                closeModelSelectModal();
+            });
+
+            modelReasonerBtn.addEventListener('click', () => {
+                settings.model = 'deepseek-reasoner';
+                saveSettings();
+                closeModelSelectModal();
+            });
+
+            // 颜色选择模态框关闭
             function closeColorPickerModal() {
                 colorPickerModal.classList.add('closing');
                 colorPickerModal.addEventListener('animationend', function onAnimationEnd() {
@@ -1532,31 +1430,14 @@
                 }
             });
 
-            systemColorPicker.addEventListener('change', (e) => {
+            systemColorPicker.addEventListener('input', (e) => {
                 settings.customColor = e.target.value;
                 settings.theme = 'custom';
                 saveSettings();
                 applySettings();
             });
 
-            function openFullscreenText(content) {
-                fullscreenTextContent.textContent = content;
-                fullscreenTextModal.classList.remove('closing');
-                fullscreenTextModal.classList.add('active');
-            }
-
-            function closeFullscreenTextModal() {
-                fullscreenTextModal.classList.add('closing');
-                fullscreenTextModal.addEventListener('animationend', function onAnimationEnd() {
-                    fullscreenTextModal.classList.remove('active', 'closing');
-                    fullscreenTextModal.removeEventListener('animationend', onAnimationEnd);
-                }, { once: true });
-            }
-            fullscreenTextClose.addEventListener('click', closeFullscreenTextModal);
-            fullscreenTextModal.addEventListener('click', (e) => {
-                if (e.target === fullscreenTextModal) closeFullscreenTextModal();
-            });
-
+            // 打开设置模态框
             settingsBtn.addEventListener('click', () => {
                 settingsModal.classList.remove('closing');
                 settingsModal.classList.add('active');
@@ -1575,6 +1456,7 @@
                 if (e.target === settingsModal) closeSettingsModal();
             });
 
+            // 打开导入导出模态框
             importExportBtn.addEventListener('click', () => {
                 importExportModal.classList.remove('closing');
                 importExportModal.classList.add('active');
@@ -1593,6 +1475,7 @@
                 if (e.target === importExportModal) closeImportExportModal();
             });
 
+            // 提示模态框关闭
             messageModalClose.addEventListener('click', () => {
                 messageModal.classList.remove('active', 'closing');
             });
@@ -1600,6 +1483,7 @@
                 if (e.target === messageModal) messageModal.classList.remove('active', 'closing');
             });
 
+            // 显示加载遮罩（延迟3秒）
             function showLoaderDelayed() {
                 if (operationInProgress) return;
                 operationInProgress = true;
@@ -1619,6 +1503,7 @@
                 globalLoader.classList.remove('active');
             }
 
+            // 导出对话
             exportBtn.addEventListener('click', () => {
                 showLoaderDelayed();
                 try {
@@ -1641,6 +1526,7 @@
                 }
             });
 
+            // 导入对话
             importBtn.addEventListener('click', () => {
                 if (conversationHistory.length > 0) {
                     messageModal.classList.remove('closing');
@@ -1696,6 +1582,7 @@
                 input.click();
             });
 
+            // 清空上下文
             clearHistoryBtn.addEventListener('click', () => {
                 conversationHistory = [];
                 messagesDiv.innerHTML = '';
@@ -1708,6 +1595,7 @@
                 }, 1000);
             });
 
+            // 编辑模态框
             editBtn.addEventListener('click', () => {
                 modalTextarea.value = messageInput.value;
                 editModal.classList.remove('closing');
@@ -1735,6 +1623,7 @@
 
             loadSettings();
 
+            // 输入框自适应
             function autoResize() {
                 if (messageInput.value === '') {
                     messageInput.style.height = '';
@@ -1746,6 +1635,7 @@
             }
             messageInput.addEventListener('input', autoResize);
 
+            // 切换密钥可见性
             let keyVisible = false;
             toggleKeyBtn.addEventListener('click', () => {
                 keyVisible = !keyVisible;
@@ -1765,6 +1655,7 @@
                 saveSettings();
             });
 
+            // 重新渲染历史消息
             function renderHistory() {
                 messagesDiv.innerHTML = '';
                 conversationHistory.forEach(item => {
@@ -1776,21 +1667,25 @@
                 });
             }
 
+            // 将文本转义为安全的HTML
             function escapeHtml(text) {
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
             }
 
+            // 柔性输出：将文本转换为HTML，最后一个字符半透明
             function softOutputHtml(text) {
                 if (!text) return '';
                 const escaped = escapeHtml(text);
                 if (text.length === 0) return escaped;
+                // 最后一个字符半透明
                 const lastChar = escaped.slice(-1);
                 const rest = escaped.slice(0, -1);
                 return rest + '<span style="opacity:0.5">' + lastChar + '</span>';
             }
 
+            // 发送消息
             sendBtn.addEventListener('click', async () => {
                 const userMessage = messageInput.value.trim();
                 if (!userMessage) return;
@@ -1807,7 +1702,15 @@
                     return;
                 }
 
+                // 构建消息数组
                 let requestMessages = [];
+
+                if (settings.bluntMode) {
+                    requestMessages.push({
+                        role: 'system',
+                        content: '1.接下来你用简单并且有人情味的语言回答用户，不说废话，你拥有与用户共情的情感\n2.用户如果说错了观点，你允许质疑用户的观点\n3.说话敦厚，不能用一些奇奇怪怪的比喻，但也要浪漫(浪漫的意思是并不是让句子有多诗意或神圣，而是与用户小小的互动，让用户感受到你的互动)\n4.你要分清楚用户到底是在讨论问题还是发泄情绪，如果是发泄情绪，那么不能乱给建议，也不能长篇大论(长篇大论并不是让你说话简洁，而是让你说话在适当的地方保持完整，一些微小的建议要说完整，但是不能让用户感觉到烦)\n5.为了避免用户烦躁，在平时的聊天时不能向用户询问、不能说疑问句\n6.不能对用户太过于亲近，要有空间距离感'
+                    });
+                }
 
                 if (settings.memory) {
                     requestMessages = requestMessages.concat(conversationHistory.map(msg => ({
@@ -1819,7 +1722,7 @@
                 requestMessages.push({ role: 'user', content: userMessage });
 
                 const requestBody = {
-                    model: 'deepseek-chat',
+                    model: settings.model,
                     messages: requestMessages,
                     stream: true
                 };
@@ -1827,6 +1730,7 @@
                     requestBody.max_tokens = settings.maxTokens;
                 }
 
+                // 创建AI消息包装器，先显示加载动画
                 const wrapper = document.createElement('div');
                 wrapper.className = 'message-wrapper ai-wrapper';
                 const loadingDiv = document.createElement('div');
@@ -1838,6 +1742,7 @@
                 wrapper.appendChild(bubble);
                 messagesDiv.appendChild(wrapper);
 
+                // 用于高亮光标的定时器
                 let cursorInterval = null;
 
                 try {
@@ -1856,6 +1761,7 @@
                     const decoder = new TextDecoder('utf-8');
                     let fullContent = '';
 
+                    // 移除加载动画，添加正常头像和打字光标
                     wrapper.removeChild(loadingDiv);
                     const avatar = document.createElement('div');
                     avatar.className = 'ai-avatar';
@@ -1864,6 +1770,7 @@
                     bubble.classList.add('typing');
                     if (settings.cursorHighlight) {
                         bubble.classList.add('highlight');
+                        // 启动随机颜色定时器（每200ms）
                         cursorInterval = setInterval(() => {
                             const hue = Math.floor(Math.random() * 360);
                             const color = `hsl(${hue}, 100%, 70%)`;
@@ -1884,6 +1791,7 @@
                                     const json = JSON.parse(data);
                                     const content = json.choices[0]?.delta?.content || '';
                                     fullContent += content;
+                                    // 根据柔性输出开关决定更新方式
                                     if (settings.softOutput) {
                                         bubble.innerHTML = softOutputHtml(fullContent);
                                     } else {
@@ -1899,14 +1807,16 @@
                         }
                     }
 
+                    // 流式输出结束，移除光标相关
                     bubble.classList.remove('typing');
                     if (cursorInterval) {
                         clearInterval(cursorInterval);
                         bubble.classList.remove('highlight');
                         bubble.style.removeProperty('--cursor-color');
                     }
+                    // 最终内容以纯文本显示（移除半透明样式）
                     if (settings.softOutput) {
-                        bubble.textContent = fullContent;
+                        bubble.textContent = fullContent; // 替换为纯文本，去除半透明
                     }
 
                     if (settings.toolbar) {
@@ -1926,14 +1836,6 @@
                             }
                         });
                         footer.appendChild(copyBtn);
-                        const fullscreenBtn = document.createElement('button');
-                        fullscreenBtn.className = 'fullscreen-btn';
-                        fullscreenBtn.textContent = '🔍';
-                        fullscreenBtn.title = '全屏查看';
-                        fullscreenBtn.addEventListener('click', () => {
-                            openFullscreenText(bubble.textContent);
-                        });
-                        footer.appendChild(fullscreenBtn);
                         wrapper.appendChild(footer);
                     }
 
@@ -1943,6 +1845,7 @@
                         saveSettings();
                     }
                 } catch (error) {
+                    // 发生错误，移除加载动画，显示错误信息
                     if (wrapper.contains(loadingDiv)) {
                         wrapper.removeChild(loadingDiv);
                     } else {
@@ -1961,6 +1864,7 @@
                 }
             });
 
+            // 追加消息（用于渲染历史或错误消息）
             function appendMessage(role, content, timestamp = null) {
                 if (role === 'user' && settings.showTimestamp) {
                     const timeDiv = document.createElement('div');
@@ -1989,7 +1893,7 @@
                 bubble.textContent = content;
                 wrapper.appendChild(bubble);
 
-                if (role === 'ai' && settings.toolbar && !content.startsWith('错误')) {
+                if (role === 'ai' && settings.toolbar && !content.startsWith('错误') && !content.includes('无效')) {
                     const footer = document.createElement('div');
                     footer.className = 'ai-footer';
                     const copyBtn = document.createElement('button');
@@ -2006,14 +1910,6 @@
                         }
                     });
                     footer.appendChild(copyBtn);
-                    const fullscreenBtn = document.createElement('button');
-                    fullscreenBtn.className = 'fullscreen-btn';
-                    fullscreenBtn.textContent = '🔍';
-                    fullscreenBtn.title = '全屏查看';
-                    fullscreenBtn.addEventListener('click', () => {
-                        openFullscreenText(bubble.textContent);
-                    });
-                    footer.appendChild(fullscreenBtn);
                     wrapper.appendChild(footer);
                 }
 
@@ -2023,6 +1919,7 @@
                 }
             }
 
+            // 回车发送
             messageInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
                     e.preventDefault();
@@ -2030,6 +1927,7 @@
                 }
             });
 
+            // 智能滚动控制
             function isAtBottom() {
                 const scrollBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight;
                 return scrollBottom < 5;
