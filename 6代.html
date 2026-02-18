@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGR_D老师聊天工具</title>
+    <title>ChatGR_AI聊天工具</title>
     <style>
         /* ========== 全局CSS变量 ========== */
         :root {
@@ -243,8 +243,8 @@
             to { transform: rotate(360deg); }
         }
         .message {
-            padding: 8px 12px;
-            border-radius: 12px;
+            padding: 10px 14px;
+            border-radius: 18px;
             line-height: 1.5;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -263,26 +263,6 @@
         .ai-message {
             background: var(--ai-bubble);
             border-bottom-left-radius: 4px;
-            position: relative;
-        }
-        /* 普通打字光标 */
-        .ai-message.typing::after {
-            content: '|';
-            display: inline-block;
-            margin-left: 2px;
-            animation: blink 1s infinite;
-            font-weight: normal;
-            color: currentColor;
-        }
-        /* 高亮光标 */
-        .ai-message.typing.highlight::after {
-            color: var(--cursor-color, currentColor);
-            text-shadow: 0 0 3px var(--cursor-color, currentColor);
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
         }
         .time-divider {
             text-align: center;
@@ -323,7 +303,7 @@
             gap: 8px;
             background: var(--bg-input-area);
             padding: 10px;
-            border-radius: 20px;
+            border-radius: 28px;
             box-shadow: 0 2px 8px var(--shadow-color);
             align-items: center;
         }
@@ -332,7 +312,7 @@
             height: 36px;
             background: var(--bg-button);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 18px;
             font-size: 18px;
             cursor: pointer;
             display: flex;
@@ -348,7 +328,7 @@
             flex: 1;
             padding: 6px 12px;
             border: 1px solid var(--border-light);
-            border-radius: 16px;
+            border-radius: 20px;
             font-size: 15px;
             font-family: inherit;
             resize: none;
@@ -378,7 +358,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-weight: bold;
+            font-weight: bold; /* 加粗箭头 */
         }
         #send-btn:hover:not(:disabled) {
             background: var(--bg-send-hover);
@@ -440,7 +420,7 @@
             background: var(--bg-modal);
             width: 90%;
             max-width: 400px;
-            border-radius: 16px;
+            border-radius: 24px;
             padding: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             color: var(--text-primary);
@@ -472,34 +452,6 @@
         }
         .modal-close:hover {
             background: var(--bg-button-hover);
-        }
-
-        /* 设置模态框专用：固定标题，滚动内容 */
-        #settings-modal .modal-content {
-            display: flex;
-            flex-direction: column;
-            max-height: 80vh; /* 限制最大高度 */
-            padding: 20px 20px 10px 20px; /* 底部内边距稍小 */
-        }
-        #settings-modal .modal-header {
-            flex-shrink: 0; /* 防止压缩 */
-        }
-        .settings-scroll-area {
-            overflow-y: auto;
-            padding-right: 4px; /* 为滚动条留点空间 */
-            margin-bottom: 10px;
-            flex: 1; /* 占用剩余空间 */
-        }
-        /* 滚动条样式（可选） */
-        .settings-scroll-area::-webkit-scrollbar {
-            width: 6px;
-        }
-        .settings-scroll-area::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .settings-scroll-area::-webkit-scrollbar-thumb {
-            background: var(--border-light);
-            border-radius: 3px;
         }
 
         /* 导入导出模态框专用 */
@@ -647,12 +599,6 @@
         .model-select-btn:hover {
             background: var(--bg-button-hover);
         }
-        .model-select-btn.active {
-            background: var(--bg-send);
-            color: var(--text-on-send);
-            border-color: var(--bg-send);
-            box-shadow: 0 0 0 2px var(--border-focus);
-        }
 
         /* 设置项样式 - 使用grid彻底解决挤压问题 */
         .setting-item {
@@ -687,9 +633,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border: 1px solid var(--border-light);
-            border-radius: 20px;
+            border-radius: 30px;
             background: var(--bg-button);
             color: var(--text-primary);
             cursor: pointer;
@@ -843,7 +789,7 @@
     <div id="input-area">
         <button id="edit-btn" disabled>✎</button>
         <textarea id="message-input" placeholder="向 AI 发送消息..." disabled rows="1"></textarea>
-        <button id="send-btn" disabled>▲</button>
+        <button id="send-btn" disabled>▲</button> <!-- 加粗箭头 -->
     </div>
 
     <!-- 编辑模态框 -->
@@ -857,94 +803,78 @@
         </div>
     </div>
 
-    <!-- 设置模态框（固定标题，可滚动内容） -->
+    <!-- 设置模态框 -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>设置</h3>
                 <button class="modal-close" id="settings-close">✕</button>
             </div>
-            <div class="settings-scroll-area">
-                <div class="setting-item">
-                    <span class="setting-label">复制按钮工具栏</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="toolbar-off">关</button>
-                        <button class="toggle-btn active" id="toolbar-on">开</button>
-                    </div>
+            <div class="setting-item">
+                <span class="setting-label">复制按钮工具栏</span>
+                <div class="setting-control">
+                    <button class="toggle-btn" id="toolbar-off">关</button>
+                    <button class="toggle-btn active" id="toolbar-on">开</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">隐藏API密钥</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="hidekey-off">关</button>
-                        <button class="toggle-btn active" id="hidekey-on">开</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">隐藏API密钥</span>
+                <div class="setting-control">
+                    <button class="toggle-btn" id="hidekey-off">关</button>
+                    <button class="toggle-btn active" id="hidekey-on">开</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">长期记忆(关闭会丢失记忆!)</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="memory-off">关</button>
-                        <button class="toggle-btn active" id="memory-on">开</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">长期记忆</span>
+                <div class="setting-control">
+                    <button class="toggle-btn" id="memory-off">关</button>
+                    <button class="toggle-btn active" id="memory-on">开</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">说人话模式(不推荐使用)</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="blunt-off">关</button>
-                        <button class="toggle-btn" id="blunt-on">开</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">说人话模式</span>
+                <div class="setting-control">
+                    <button class="toggle-btn" id="blunt-off">关</button>
+                    <button class="toggle-btn" id="blunt-on">开</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">显示发送时间</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="timestamp-off">关</button>
-                        <button class="toggle-btn active" id="timestamp-on">开</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">显示发送时间</span>
+                <div class="setting-control">
+                    <button class="toggle-btn" id="timestamp-off">关</button>
+                    <button class="toggle-btn active" id="timestamp-on">开</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">按钮点击音效</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="sound-off">关</button>
-                        <button class="toggle-btn active" id="sound-on">开</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">按钮点击音效</span>
+                <div class="setting-control">
+                    <button class="toggle-btn" id="sound-off">关</button>
+                    <button class="toggle-btn active" id="sound-on">开</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">高亮输入光标(影响性能!)</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="cursor-highlight-off">关</button>
-                        <button class="toggle-btn active" id="cursor-highlight-on">开</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">上下文长度</span>
+                <div class="setting-control">
+                    <button class="context-option" data-value="64">64</button>
+                    <button class="context-option" data-value="512">512</button>
+                    <button class="context-option" data-value="1024">1024</button>
+                    <button class="context-option" data-value="4096">4096</button>
+                    <button class="context-option" data-value="8192">8192</button>
+                    <button class="context-option" data-value="0">无限制</button>
                 </div>
-                <div class="setting-item">
-                    <span class="setting-label">柔性输出(影响性能!)</span>
-                    <div class="setting-control">
-                        <button class="toggle-btn" id="soft-output-off">关</button>
-                        <button class="toggle-btn active" id="soft-output-on">开</button>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <span class="setting-label">上下文长度</span>
-                    <div class="setting-control">
-                        <button class="context-option" data-value="64">64</button>
-                        <button class="context-option" data-value="512">512</button>
-                        <button class="context-option" data-value="1024">1024</button>
-                        <button class="context-option" data-value="4096">4096</button>
-                        <button class="context-option" data-value="8192">8192</button>
-                        <button class="context-option" data-value="0">无限制</button>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <span class="setting-label">主题</span>
-                    <div class="setting-control" style="gap: 6px;">
-                        <button class="theme-option" data-theme="default">默认</button>
-                        <button class="theme-option" data-theme="lightblue">浅蓝</button>
-                        <button class="theme-option" data-theme="lightpink">浅粉</button>
-                        <button class="theme-option" data-theme="lightgreen">淡绿</button>
-                        <button class="theme-option" data-theme="lightyellow">淡黄</button>
-                        <button class="theme-option" data-theme="lightred">浅红</button>
-                        <button class="theme-option" data-theme="lightpurple">淡紫</button>
-                        <button class="theme-option" data-theme="dark">深黑</button>
-                        <button class="theme-option" data-theme="custom">自定义</button>
-                    </div>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">主题</span>
+                <div class="setting-control" style="gap: 6px;">
+                    <button class="theme-option" data-theme="default">默认</button>
+                    <button class="theme-option" data-theme="lightblue">浅蓝</button>
+                    <button class="theme-option" data-theme="lightpink">浅粉</button>
+                    <button class="theme-option" data-theme="lightgreen">淡绿</button>
+                    <button class="theme-option" data-theme="lightyellow">淡黄</button>
+                    <button class="theme-option" data-theme="lightred">浅红</button>
+                    <button class="theme-option" data-theme="lightpurple">淡紫</button>
+                    <button class="theme-option" data-theme="dark">深黑</button>
+                    <button class="theme-option" data-theme="custom">自定义</button>
                 </div>
             </div>
         </div>
@@ -1089,10 +1019,6 @@
             const timestampOn = document.getElementById('timestamp-on');
             const soundOff = document.getElementById('sound-off');
             const soundOn = document.getElementById('sound-on');
-            const cursorHighlightOff = document.getElementById('cursor-highlight-off');
-            const cursorHighlightOn = document.getElementById('cursor-highlight-on');
-            const softOutputOff = document.getElementById('soft-output-off');
-            const softOutputOn = document.getElementById('soft-output-on');
             const contextOptions = document.querySelectorAll('.context-option');
             const themeOptions = document.querySelectorAll('.theme-option');
 
@@ -1108,14 +1034,11 @@
                 memory: true,
                 bluntMode: false,
                 showTimestamp: true,
-                soundEnabled: true,
-                cursorHighlight: false,
-                softOutput: false,
+                soundEnabled: true, // 默认开启音效
                 maxTokens: 4096,
                 theme: 'default',
                 customColor: '',
-                model: 'deepseek-chat',
-                apiKey: ''
+                model: 'deepseek-chat' // 默认模型
             };
 
             // 自动滚动控制
@@ -1148,7 +1071,9 @@
                     gain.connect(audioCtx.destination);
                     osc.start(now);
                     osc.stop(now + 0.03);
-                } catch (e) {}
+                } catch (e) {
+                    // 忽略错误
+                }
             }
 
             // 全局点击监听音效
@@ -1180,17 +1105,25 @@
                 return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
             }
 
-            // 应用自定义主题
+            // 应用自定义主题（仿预设主题风格）
             function applyCustomTheme(color) {
                 const root = document.documentElement;
-                const bgBody = adjustBrightness(color, 90);
+                // 背景色：极浅（亮70%）
+                const bgBody = adjustBrightness(color, 70);
+                // 用户气泡：亮20%
                 const userBubble = adjustBrightness(color, 20);
-                const aiBubble = adjustBrightness(color, -10);
+                // AI气泡：暗20%
+                const aiBubble = adjustBrightness(color, -20);
+                // 发送按钮：暗40%
                 const sendBtn = adjustBrightness(color, -40);
+                // 发送按钮悬停：暗60%
                 const sendHover = adjustBrightness(color, -60);
+                // 边框：亮30%
                 const borderLight = adjustBrightness(color, 30);
+                // 聚焦边框：暗10%
                 const borderFocus = adjustBrightness(color, -10);
 
+                // 设置变量
                 root.style.setProperty('--bg-body', bgBody);
                 root.style.setProperty('--user-bubble', userBubble);
                 root.style.setProperty('--ai-bubble', aiBubble);
@@ -1199,11 +1132,13 @@
                 root.style.setProperty('--border-light', borderLight);
                 root.style.setProperty('--border-focus', borderFocus);
 
+                // 根据发送按钮亮度决定文字颜色
                 const rgb = hexToRgb(sendBtn);
                 const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
                 root.style.setProperty('--text-on-send', brightness > 128 ? '#111' : '#eee');
             }
 
+            // 清除自定义主题（恢复变量默认）
             function clearCustomTheme() {
                 const root = document.documentElement;
                 root.style.removeProperty('--bg-body');
@@ -1225,16 +1160,11 @@
                         if (data.history) conversationHistory = data.history;
                     } catch (e) {}
                 }
-                if (settings.apiKey) {
-                    apiKeyInput.value = settings.apiKey;
-                    setEnabled(settings.apiKey.startsWith('sk-'));
-                }
                 applySettings();
                 renderHistory();
             }
 
             function saveSettings() {
-                settings.apiKey = apiKeyInput.value.trim();
                 const data = {
                     settings: settings,
                     history: conversationHistory
@@ -1250,8 +1180,6 @@
                 updateToggle(bluntOn, bluntOff, settings.bluntMode);
                 updateToggle(timestampOn, timestampOff, settings.showTimestamp);
                 updateToggle(soundOn, soundOff, settings.soundEnabled);
-                updateToggle(cursorHighlightOn, cursorHighlightOff, settings.cursorHighlight);
-                updateToggle(softOutputOn, softOutputOff, settings.softOutput);
 
                 contextOptions.forEach(btn => {
                     const val = parseInt(btn.dataset.value);
@@ -1262,17 +1190,23 @@
                     }
                 });
 
+                // 处理主题
                 if (settings.theme === 'custom' && settings.customColor) {
+                    // 移除所有主题类
                     document.body.className = '';
+                    // 应用自定义主题
                     applyCustomTheme(settings.customColor);
                 } else {
+                    // 清除自定义主题变量
                     clearCustomTheme();
+                    // 应用预定义主题类
                     document.body.className = '';
                     if (settings.theme !== 'default') {
                         document.body.classList.add(`theme-${settings.theme}`);
                     }
                 }
 
+                // 高亮主题按钮
                 themeOptions.forEach(btn => {
                     if (btn.dataset.theme === settings.theme) {
                         btn.classList.add('active');
@@ -1304,10 +1238,6 @@
             timestampOff.addEventListener('click', () => { settings.showTimestamp = false; saveSettings(); applySettings(); });
             soundOn.addEventListener('click', () => { settings.soundEnabled = true; saveSettings(); applySettings(); });
             soundOff.addEventListener('click', () => { settings.soundEnabled = false; saveSettings(); applySettings(); });
-            cursorHighlightOn.addEventListener('click', () => { settings.cursorHighlight = true; saveSettings(); applySettings(); });
-            cursorHighlightOff.addEventListener('click', () => { settings.cursorHighlight = false; saveSettings(); applySettings(); });
-            softOutputOn.addEventListener('click', () => { settings.softOutput = true; saveSettings(); applySettings(); });
-            softOutputOff.addEventListener('click', () => { settings.softOutput = false; saveSettings(); applySettings(); });
 
             contextOptions.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1321,6 +1251,7 @@
                 btn.addEventListener('click', () => {
                     const theme = btn.dataset.theme;
                     if (theme === 'custom') {
+                        // 打开颜色选择模态框
                         colorPickerModal.classList.remove('closing');
                         colorPickerModal.classList.add('active');
                     } else {
@@ -1336,13 +1267,6 @@
 
             // 模型选择
             modelSelectBtn.addEventListener('click', () => {
-                if (settings.model === 'deepseek-chat') {
-                    modelChatBtn.classList.add('active');
-                    modelReasonerBtn.classList.remove('active');
-                } else {
-                    modelReasonerBtn.classList.add('active');
-                    modelChatBtn.classList.remove('active');
-                }
                 modelSelectModal.classList.remove('closing');
                 modelSelectModal.classList.add('active');
             });
@@ -1652,7 +1576,6 @@
             apiKeyInput.addEventListener('input', () => {
                 const key = apiKeyInput.value.trim();
                 setEnabled(key.startsWith('sk-'));
-                saveSettings();
             });
 
             // 重新渲染历史消息
@@ -1665,24 +1588,6 @@
                         appendMessage('ai', item.content, item.timestamp);
                     }
                 });
-            }
-
-            // 将文本转义为安全的HTML
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            // 柔性输出：将文本转换为HTML，最后一个字符半透明
-            function softOutputHtml(text) {
-                if (!text) return '';
-                const escaped = escapeHtml(text);
-                if (text.length === 0) return escaped;
-                // 最后一个字符半透明
-                const lastChar = escaped.slice(-1);
-                const rest = escaped.slice(0, -1);
-                return rest + '<span style="opacity:0.5">' + lastChar + '</span>';
             }
 
             // 发送消息
@@ -1722,7 +1627,7 @@
                 requestMessages.push({ role: 'user', content: userMessage });
 
                 const requestBody = {
-                    model: settings.model,
+                    model: settings.model, // 使用选择的模型
                     messages: requestMessages,
                     stream: true
                 };
@@ -1742,9 +1647,6 @@
                 wrapper.appendChild(bubble);
                 messagesDiv.appendChild(wrapper);
 
-                // 用于高亮光标的定时器
-                let cursorInterval = null;
-
                 try {
                     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
                         method: 'POST',
@@ -1761,23 +1663,6 @@
                     const decoder = new TextDecoder('utf-8');
                     let fullContent = '';
 
-                    // 移除加载动画，添加正常头像和打字光标
-                    wrapper.removeChild(loadingDiv);
-                    const avatar = document.createElement('div');
-                    avatar.className = 'ai-avatar';
-                    avatar.textContent = 'AI';
-                    wrapper.insertBefore(avatar, bubble);
-                    bubble.classList.add('typing');
-                    if (settings.cursorHighlight) {
-                        bubble.classList.add('highlight');
-                        // 启动随机颜色定时器（每200ms）
-                        cursorInterval = setInterval(() => {
-                            const hue = Math.floor(Math.random() * 360);
-                            const color = `hsl(${hue}, 100%, 70%)`;
-                            bubble.style.setProperty('--cursor-color', color);
-                        }, 200);
-                    }
-
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
@@ -1791,12 +1676,7 @@
                                     const json = JSON.parse(data);
                                     const content = json.choices[0]?.delta?.content || '';
                                     fullContent += content;
-                                    // 根据柔性输出开关决定更新方式
-                                    if (settings.softOutput) {
-                                        bubble.innerHTML = softOutputHtml(fullContent);
-                                    } else {
-                                        bubble.textContent = fullContent;
-                                    }
+                                    bubble.textContent = fullContent;
                                     if (autoScrollEnabled) {
                                         messagesDiv.scrollTop = messagesDiv.scrollHeight;
                                     }
@@ -1807,17 +1687,12 @@
                         }
                     }
 
-                    // 流式输出结束，移除光标相关
-                    bubble.classList.remove('typing');
-                    if (cursorInterval) {
-                        clearInterval(cursorInterval);
-                        bubble.classList.remove('highlight');
-                        bubble.style.removeProperty('--cursor-color');
-                    }
-                    // 最终内容以纯文本显示（移除半透明样式）
-                    if (settings.softOutput) {
-                        bubble.textContent = fullContent; // 替换为纯文本，去除半透明
-                    }
+                    // 流式输出结束，移除加载动画，添加正常头像
+                    wrapper.removeChild(loadingDiv);
+                    const avatar = document.createElement('div');
+                    avatar.className = 'ai-avatar';
+                    avatar.textContent = 'AI';
+                    wrapper.insertBefore(avatar, bubble);
 
                     if (settings.toolbar) {
                         const footer = document.createElement('div');
@@ -1846,16 +1721,7 @@
                     }
                 } catch (error) {
                     // 发生错误，移除加载动画，显示错误信息
-                    if (wrapper.contains(loadingDiv)) {
-                        wrapper.removeChild(loadingDiv);
-                    } else {
-                        bubble.classList.remove('typing');
-                        if (cursorInterval) {
-                            clearInterval(cursorInterval);
-                            bubble.classList.remove('highlight');
-                            bubble.style.removeProperty('--cursor-color');
-                        }
-                    }
+                    wrapper.removeChild(loadingDiv);
                     const avatar = document.createElement('div');
                     avatar.className = 'ai-avatar';
                     avatar.textContent = 'AI';
