@@ -642,6 +642,114 @@
             border-color: var(--bg-send);
         }
 
+        /* 导入导出模态框按钮样式（修正） */
+        .import-export-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .import-export-btn {
+            padding: 12px;
+            background: var(--bg-button);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .import-export-btn:hover {
+            background: var(--bg-button-hover);
+        }
+
+        /* 自定义颜色选择模态框按钮样式（修正） */
+        .color-picker-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .color-picker-btn {
+            padding: 12px;
+            background: var(--bg-button);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .color-picker-btn:hover {
+            background: var(--bg-button-hover);
+        }
+
+        /* 提示模态框 */
+        .message-modal-content {
+            text-align: center;
+        }
+        .message-modal-content p {
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        /* HEX输入模态框 */
+        .hex-input-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 20px 0;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: var(--bg-input);
+        }
+        .hex-prefix {
+            padding: 10px 0 10px 12px;
+            color: #aaa;
+            font-size: 16px;
+            user-select: none;
+            background: transparent;
+            border: none;
+        }
+        .hex-input-field {
+            flex: 1;
+            padding: 10px 12px 10px 0;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .hex-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .hex-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .hex-btn.confirm {
+            background: var(--bg-send);
+            color: var(--text-on-send);
+            flex: 2;
+        }
+        .hex-btn.confirm:hover {
+            background: var(--bg-send-hover);
+        }
+        .hex-btn.close {
+            background: var(--bg-button);
+            color: var(--text-primary);
+            flex: 1;
+        }
+        .hex-btn.close:hover {
+            background: var(--bg-button-hover);
+        }
+
         /* 字体大小输入框样式 */
         #font-size-input {
             width: 70px;
@@ -947,7 +1055,7 @@
         </div>
     </div>
 
-    <!-- 自定义颜色选择模态框 -->
+    <!-- 自定义颜色选择模态框（移除底部关闭按钮） -->
     <div id="color-picker-modal" class="modal color-picker-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -958,9 +1066,7 @@
                 <button class="color-picker-btn" id="rgb-picker-btn">系统调色器 (RGB)</button>
                 <button class="color-picker-btn" id="hex-picker-btn">HEX调色器</button>
             </div>
-            <div class="modal-footer">
-                <button class="modal-close" id="color-picker-footer-close">关闭</button>
-            </div>
+            <!-- 已移除底部关闭按钮 -->
         </div>
     </div>
 
@@ -1033,7 +1139,6 @@
 
             const colorPickerModal = document.getElementById('color-picker-modal');
             const colorPickerModalClose = document.getElementById('color-picker-modal-close');
-            const colorPickerFooterClose = document.getElementById('color-picker-footer-close');
             const rgbPickerBtn = document.getElementById('rgb-picker-btn');
             const hexPickerBtn = document.getElementById('hex-picker-btn');
             const hexModal = document.getElementById('hex-modal');
@@ -1438,7 +1543,6 @@
                 }, { once: true });
             }
             colorPickerModalClose.addEventListener('click', closeColorPickerModal);
-            colorPickerFooterClose.addEventListener('click', closeColorPickerModal);
             colorPickerModal.addEventListener('click', (e) => {
                 if (e.target === colorPickerModal) closeColorPickerModal();
             });
@@ -1594,7 +1698,7 @@
                             fileContent = e.target.result;
                             fileBtn.classList.add('file-selected');
                         };
-                        reader.readAsText(file); // 尝试以文本读取，失败会进入错误，但不管
+                        reader.readAsText(file);
                     };
                     input.click();
                 }
@@ -1830,7 +1934,6 @@
                 wrapper.className = 'message-wrapper ai-wrapper';
                 const loadingDiv = document.createElement('div');
                 loadingDiv.className = 'ai-loading';
-                // 统一显示“对方正在输入中...”
                 loadingDiv.innerHTML = '<span class="spinner"></span> 对方正在输入中...';
                 wrapper.appendChild(loadingDiv);
                 const bubble = document.createElement('div');
@@ -1852,7 +1955,6 @@
 
                     if (!response.ok) throw new Error(`API 请求失败: ${response.status}`);
 
-                    // 如果开启了惰性输出，先改为“惰性输出加载中...”
                     if (settings.lazyOutput) {
                         loadingDiv.innerHTML = '<span class="spinner"></span> 惰性输出加载中...';
                     }
@@ -1861,7 +1963,6 @@
                     const decoder = new TextDecoder('utf-8');
                     let fullContent = '';
 
-                    // 接收所有数据
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
@@ -1875,7 +1976,6 @@
                                     const json = JSON.parse(data);
                                     const content = json.choices[0]?.delta?.content || '';
                                     fullContent += content;
-                                    // 非惰性输出时可实时更新
                                     if (!settings.lazyOutput) {
                                         if (settings.softOutput) {
                                             bubble.innerHTML = softOutputHtml(fullContent);
@@ -1893,30 +1993,26 @@
                         }
                     }
 
-                    // 流式输出结束，移除加载，显示AI头像
                     wrapper.removeChild(loadingDiv);
                     const avatar = document.createElement('div');
                     avatar.className = 'ai-avatar';
                     avatar.textContent = 'AI';
                     wrapper.insertBefore(avatar, bubble);
 
-                    // 如果开启了惰性输出，执行逐字显示
                     if (settings.lazyOutput) {
                         await lazyOutput(bubble, fullContent);
                     } else if (settings.softOutput) {
-                        bubble.textContent = fullContent; // 恢复纯文本
+                        bubble.textContent = fullContent;
                     } else {
                         bubble.textContent = fullContent;
                     }
 
-                    // 重置文件状态（无论是否成功）
                     if (selectedFile) {
                         selectedFile = null;
                         fileContent = null;
                         fileBtn.classList.remove('file-selected');
                     }
 
-                    // 添加工具栏按钮
                     if (settings.toolbar) {
                         const footer = document.createElement('div');
                         footer.className = 'ai-footer';
@@ -1951,7 +2047,6 @@
                         saveSettings();
                     }
                 } catch (error) {
-                    // 发生错误，移除加载，显示错误信息
                     if (wrapper.contains(loadingDiv)) {
                         wrapper.removeChild(loadingDiv);
                     } else {
