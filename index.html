@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGR_跟D老师聊天</title>
+    <title>ChatGR_AI聊天工具</title>
     <style>
         /* ========== 全局CSS变量 ========== */
         :root {
@@ -642,7 +642,7 @@
             border-color: var(--bg-send);
         }
 
-        /* 导入导出模态框按钮样式（修正） */
+        /* 导入导出模态框按钮样式 */
         .import-export-buttons {
             display: flex;
             flex-direction: column;
@@ -663,7 +663,7 @@
             background: var(--bg-button-hover);
         }
 
-        /* 自定义颜色选择模态框按钮样式（修正） */
+        /* 自定义颜色选择模态框按钮样式 */
         .color-picker-buttons {
             display: flex;
             flex-direction: column;
@@ -690,6 +690,15 @@
             text-align: center;
         }
         .message-modal-content p {
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        /* 乱码提示模态框 */
+        #garbled-modal .modal-content {
+            text-align: center;
+        }
+        #garbled-modal p {
             margin: 20px 0;
             font-size: 16px;
         }
@@ -1044,7 +1053,7 @@
         </div>
     </div>
 
-    <!-- 提示模态框 -->
+    <!-- 提示模态框（用于导入冲突） -->
     <div id="message-modal" class="modal">
         <div class="modal-content message-modal-content">
             <div class="modal-header">
@@ -1052,6 +1061,17 @@
                 <button class="modal-close" id="message-modal-close">✕</button>
             </div>
             <p>当前已有对话历史，请先清空上下文再导入。</p>
+        </div>
+    </div>
+
+    <!-- 乱码提示模态框 -->
+    <div id="garbled-modal" class="modal">
+        <div class="modal-content message-modal-content">
+            <div class="modal-header">
+                <h3>文件乱码</h3>
+                <button class="modal-close" id="garbled-modal-close">✕</button>
+            </div>
+            <p>选择的文件可能不是文本文件或包含过多乱码，请选择正常的文本文件。</p>
         </div>
     </div>
 
@@ -1066,7 +1086,6 @@
                 <button class="color-picker-btn" id="rgb-picker-btn">系统调色器 (RGB)</button>
                 <button class="color-picker-btn" id="hex-picker-btn">HEX调色器</button>
             </div>
-            <!-- 已移除底部关闭按钮 -->
         </div>
     </div>
 
@@ -1132,6 +1151,8 @@
             const globalLoader = document.getElementById('global-loader');
             const messageModal = document.getElementById('message-modal');
             const messageModalClose = document.getElementById('message-modal-close');
+            const garbledModal = document.getElementById('garbled-modal');
+            const garbledModalClose = document.getElementById('garbled-modal-close');
 
             const fullscreenTextModal = document.getElementById('fullscreen-text-modal');
             const fullscreenTextClose = document.getElementById('fullscreen-text-close');
@@ -1659,6 +1680,13 @@
                 if (e.target === messageModal) messageModal.classList.remove('active', 'closing');
             });
 
+            garbledModalClose.addEventListener('click', () => {
+                garbledModal.classList.remove('active', 'closing');
+            });
+            garbledModal.addEventListener('click', (e) => {
+                if (e.target === garbledModal) garbledModal.classList.remove('active', 'closing');
+            });
+
             function showLoaderDelayed() {
                 if (operationInProgress) return;
                 operationInProgress = true;
@@ -1678,7 +1706,26 @@
                 globalLoader.classList.remove('active');
             }
 
-            // 文件选择功能（无限制）
+            // 乱码检测函数
+            function isGarbled(text) {
+                if (!text) return false;
+                let garbledCount = 0;
+                for (let i = 0; i < text.length; i++) {
+                    const code = text.charCodeAt(i);
+                    // 控制字符（除了常见的空白）
+                    if ((code < 32 && code !== 9 && code !== 10 && code !== 13) || code === 127) {
+                        garbledCount++;
+                    }
+                    // Unicode替换字符（�）
+                    else if (code === 0xFFFD) {
+                        garbledCount++;
+                    }
+                    // 其他乱码特征可添加
+                }
+                return garbledCount > 64;
+            }
+
+            // 文件选择功能（带乱码检测）
             fileBtn.addEventListener('click', () => {
                 if (selectedFile) {
                     // 取消选择
@@ -1689,16 +1736,54 @@
                     const input = document.createElement('input');
                     input.type = 'file';
                     // 不设置 accept，允许任何文件
-                    input.onchange = (e) => {
+                    input.onchange = async (e) => {
                         const file = e.target.files[0];
                         if (!file) return;
+
+                        // 先读取前128个字符进行乱码检测
+                        const blobSlice = file.slice(0, 128); // 取前128字节
                         const reader = new FileReader();
-                        reader.onload = (e) => {
-                            selectedFile = file;
-                            fileContent = e.target.result;
-                            fileBtn.classList.add('file-selected');
-                        };
-                        reader.readAsText(file);
+
+                        // 显示加载遮罩（延迟3秒）
+                        showLoaderDelayed();
+
+                        try {
+                            const sampleText = await new Promise((resolve, reject) => {
+                                reader.onload = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsText(blobSlice);
+                            });
+
+                            // 检测乱码
+                            if (isGarbled(sampleText)) {
+                                // 乱码，弹出提示，取消选择
+                                garbledModal.classList.remove('closing');
+                                garbledModal.classList.add('active');
+                                // 清除文件选择
+                                selectedFile = null;
+                                fileContent = null;
+                                fileBtn.classList.remove('file-selected');
+                                hideLoader();
+                                return;
+                            }
+
+                            // 检测通过，读取完整文件
+                            const fullReader = new FileReader();
+                            fullReader.onload = (e) => {
+                                selectedFile = file;
+                                fileContent = e.target.result;
+                                fileBtn.classList.add('file-selected');
+                                hideLoader();
+                            };
+                            fullReader.onerror = () => {
+                                alert('读取文件失败');
+                                hideLoader();
+                            };
+                            fullReader.readAsText(file);
+                        } catch (err) {
+                            alert('读取文件失败：' + err.message);
+                            hideLoader();
+                        }
                     };
                     input.click();
                 }
