@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGR_AI聊天工具</title>
-    <!-- 不再直接引入marked，改为5秒后静默加载并缓存 -->
+    <title>ChatGR_跟D老师聊天</title>
     <style>
         /* ========== 全局CSS变量 ========== */
         :root {
@@ -257,24 +256,6 @@
             display: none;
         }
 
-        /* Markdown 样式：为特定元素添加稍深的背景 */
-        .ai-message pre, .ai-message blockquote, .ai-message table {
-            background-color: color-mix(in srgb, var(--ai-bubble), black 10%);
-            padding: 0.5em;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
-        .ai-message code {
-            background-color: color-mix(in srgb, var(--ai-bubble), black 10%);
-            padding: 0.2em 0.4em;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        .ai-message pre code {
-            background-color: transparent;
-            padding: 0;
-        }
-
         /* 对话框样式 - 气泡（默认） */
         body.style-bubble .user-message, body.style-bubble .ai-message {
             border-radius: 12px;
@@ -371,7 +352,7 @@
             margin-left: 4px;
             gap: 8px;
         }
-        .copy-btn, .fullscreen-btn, .download-btn {
+        .copy-btn, .fullscreen-btn {
             width: 28px;
             height: 28px;
             background: transparent;
@@ -385,7 +366,7 @@
             color: var(--text-secondary);
             transition: all 0.2s;
         }
-        .copy-btn:hover, .fullscreen-btn:hover, .download-btn:hover {
+        .copy-btn:hover, .fullscreen-btn:hover {
             background: var(--bg-button-hover);
             border-color: var(--border-focus);
         }
@@ -953,7 +934,7 @@
             </div>
             <div class="settings-scroll-area">
                 <div class="setting-item">
-                    <span class="setting-label">操作工具栏</span>
+                    <span class="setting-label">复制按钮工具栏</span>
                     <div class="setting-control">
                         <button class="toggle-btn" id="toolbar-off">关</button>
                         <button class="toggle-btn active" id="toolbar-on">开</button>
@@ -1090,7 +1071,7 @@
                 <h3>文件乱码</h3>
                 <button class="modal-close" id="garbled-modal-close">✕</button>
             </div>
-            <p>选择的文件可能不是文本文件或包含过多乱码，请选择正常的文本文件。</p>
+            <p>选择的文件不是文档，你应该重新选择。</p>
         </div>
     </div>
 
@@ -1638,65 +1619,10 @@
                 applySettings();
             });
 
-            // ========== 全屏 Markdown 渲染增强 ==========
-            const fullscreenCache = new Map();          // 缓存渲染后的 HTML
-            const fullscreenRendering = new Map();      // 正在渲染的 Promise
-
-            async function openFullscreenText(originalText) {
-                // 确保 marked 已加载
-                await ensureMarkedLoaded();
-
-                // 如果相同内容正在渲染，等待它完成
-                if (fullscreenRendering.has(originalText)) {
-                    await fullscreenRendering.get(originalText);
-                }
-
-                // 如果已有缓存，直接显示
-                if (fullscreenCache.has(originalText)) {
-                    fullscreenTextContent.innerHTML = fullscreenCache.get(originalText);
-                    fullscreenTextModal.classList.remove('closing');
-                    fullscreenTextModal.classList.add('active');
-                    return;
-                }
-
-                // 开始新渲染
-                const renderPromise = (async () => {
-                    // 先显示模态框，内容显示“正在渲染...”
-                    fullscreenTextContent.innerHTML = '正在渲染 Markdown...';
-                    fullscreenTextModal.classList.remove('closing');
-                    fullscreenTextModal.classList.add('active');
-
-                    let renderTimer = setTimeout(() => {
-                        globalLoader.classList.add('active');
-                    }, 3000);
-
-                    try {
-                        // 异步执行 marked 解析，避免阻塞 UI
-                        const html = await new Promise((resolve) => {
-                            setTimeout(() => {
-                                const result = marked.parse(originalText, { async: false });
-                                resolve(result);
-                            }, 0);
-                        });
-
-                        clearTimeout(renderTimer);
-                        globalLoader.classList.remove('active');
-                        fullscreenCache.set(originalText, html);
-
-                        // 如果模态框仍然打开，更新内容
-                        if (fullscreenTextModal.classList.contains('active')) {
-                            fullscreenTextContent.innerHTML = html;
-                        }
-                    } catch (e) {
-                        clearTimeout(renderTimer);
-                        globalLoader.classList.remove('active');
-                        fullscreenTextContent.innerHTML = '渲染失败：' + e.message;
-                    }
-                })();
-
-                fullscreenRendering.set(originalText, renderPromise);
-                await renderPromise;
-                fullscreenRendering.delete(originalText);
+            function openFullscreenText(content) {
+                fullscreenTextContent.textContent = content;
+                fullscreenTextModal.classList.remove('closing');
+                fullscreenTextModal.classList.add('active');
             }
 
             function closeFullscreenTextModal() {
@@ -1711,105 +1637,6 @@
                 if (e.target === fullscreenTextModal) closeFullscreenTextModal();
             });
 
-            // ========== 按需渲染 Markdown 的 IntersectionObserver ==========
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const bubble = entry.target;
-                        // 防止重复渲染
-                        if (bubble.dataset.rendered === 'true') return;
-                        const original = bubble.dataset.originalContent;
-                        if (original) {
-                            // 确保 marked 已加载，如果未加载则等待（但通常已加载，因为5秒后加载）
-                            ensureMarkedLoaded().then(() => {
-                                bubble.innerHTML = renderMarkdown(original);
-                                bubble.dataset.rendered = 'true';
-                            }).catch(() => {
-                                // 如果加载失败，暂时保留纯文本
-                                console.warn('Markdown 加载失败，无法渲染');
-                            });
-                        }
-                        observer.unobserve(bubble);
-                    }
-                });
-            }, { rootMargin: '100px 0px' }); // 提前100px预加载
-
-            // ========== Marked 静默加载与缓存 ==========
-            let markedLoadingPromise = null; // 用于确保多次调用只加载一次
-
-            // 确保 marked 已加载，返回 Promise
-            function ensureMarkedLoaded() {
-                if (window.marked) {
-                    return Promise.resolve();
-                }
-                if (markedLoadingPromise) {
-                    return markedLoadingPromise;
-                }
-                // 开始加载
-                markedLoadingPromise = new Promise((resolve, reject) => {
-                    const cached = localStorage.getItem('marked-lib');
-                    if (cached) {
-                        try {
-                            // 使用 eval 或 new Function 执行缓存的代码
-                            // 注意：代码来自 CDN，是安全的，但需要确保正确执行
-                            new Function(cached)();
-                            if (window.marked) {
-                                console.log('Marked 从缓存加载成功');
-                                resolve();
-                            } else {
-                                throw new Error('缓存执行后未定义 marked');
-                            }
-                        } catch (e) {
-                            console.warn('缓存 marked 执行失败，将重新下载', e);
-                            localStorage.removeItem('marked-lib');
-                            fetchAndCacheMarked(resolve, reject);
-                        }
-                    } else {
-                        fetchAndCacheMarked(resolve, reject);
-                    }
-                });
-                return markedLoadingPromise;
-            }
-
-            function fetchAndCacheMarked(resolve, reject) {
-                const scriptUrl = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-                fetch(scriptUrl)
-                    .then(response => {
-                        if (!response.ok) throw new Error('网络错误');
-                        return response.text();
-                    })
-                    .then(code => {
-                        // 缓存代码
-                        try {
-                            localStorage.setItem('marked-lib', code);
-                        } catch (e) {
-                            console.warn('缓存 marked 失败', e);
-                        }
-                        // 执行代码
-                        new Function(code)();
-                        if (window.marked) {
-                            console.log('Marked 下载并缓存成功');
-                            resolve();
-                        } else {
-                            reject(new Error('执行后 marked 未定义'));
-                        }
-                    })
-                    .catch(err => {
-                        console.error('加载 marked 失败', err);
-                        reject(err);
-                    });
-            }
-
-            // 页面加载完成后5秒静默加载 marked
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    ensureMarkedLoaded().catch(err => {
-                        console.warn('静默加载 marked 失败，将在需要时重试', err);
-                    });
-                }, 5000);
-            });
-
-            // ========== 设置模态框关闭等事件 ==========
             settingsBtn.addEventListener('click', () => {
                 settingsModal.classList.remove('closing');
                 settingsModal.classList.add('active');
@@ -1885,11 +1712,15 @@
                 let garbledCount = 0;
                 for (let i = 0; i < text.length; i++) {
                     const code = text.charCodeAt(i);
+                    // 控制字符（除了常见的空白）
                     if ((code < 32 && code !== 9 && code !== 10 && code !== 13) || code === 127) {
                         garbledCount++;
-                    } else if (code === 0xFFFD) {
+                    }
+                    // Unicode替换字符（�）
+                    else if (code === 0xFFFD) {
                         garbledCount++;
                     }
+                    // 其他乱码特征可添加
                 }
                 return garbledCount > 64;
             }
@@ -1897,18 +1728,23 @@
             // 文件选择功能（带乱码检测）
             fileBtn.addEventListener('click', () => {
                 if (selectedFile) {
+                    // 取消选择
                     selectedFile = null;
                     fileContent = null;
                     fileBtn.classList.remove('file-selected');
                 } else {
                     const input = document.createElement('input');
                     input.type = 'file';
+                    // 不设置 accept，允许任何文件
                     input.onchange = async (e) => {
                         const file = e.target.files[0];
                         if (!file) return;
 
-                        const blobSlice = file.slice(0, 128);
+                        // 先读取前128个字符进行乱码检测
+                        const blobSlice = file.slice(0, 128); // 取前128字节
                         const reader = new FileReader();
+
+                        // 显示加载遮罩（延迟3秒）
                         showLoaderDelayed();
 
                         try {
@@ -1918,9 +1754,12 @@
                                 reader.readAsText(blobSlice);
                             });
 
+                            // 检测乱码
                             if (isGarbled(sampleText)) {
+                                // 乱码，弹出提示，取消选择
                                 garbledModal.classList.remove('closing');
                                 garbledModal.classList.add('active');
+                                // 清除文件选择
                                 selectedFile = null;
                                 fileContent = null;
                                 fileBtn.classList.remove('file-selected');
@@ -1928,6 +1767,7 @@
                                 return;
                             }
 
+                            // 检测通过，读取完整文件
                             const fullReader = new FileReader();
                             fullReader.onload = (e) => {
                                 selectedFile = file;
@@ -2101,9 +1941,9 @@
                 messagesDiv.innerHTML = '';
                 conversationHistory.forEach(item => {
                     if (item.role === 'user') {
-                        appendMessage('user', item.content, item.timestamp, false);
+                        appendMessage('user', item.content, item.timestamp);
                     } else if (item.role === 'assistant') {
-                        appendMessage('ai', item.content, item.timestamp, true);
+                        appendMessage('ai', item.content, item.timestamp);
                     }
                 });
             }
@@ -2123,22 +1963,7 @@
                 return rest + '<span style="opacity:0.5">' + lastChar + '</span>';
             }
 
-            // 渲染Markdown（不转义HTML，但注意安全）
-            function renderMarkdown(text) {
-                try {
-                    // 如果 marked 还未加载，返回纯文本（实际调用前应确保已加载）
-                    if (!window.marked) {
-                        console.warn('marked 未加载，返回纯文本');
-                        return text;
-                    }
-                    return marked.parse(text, { async: false });
-                } catch (e) {
-                    console.warn('Markdown解析失败', e);
-                    return text;
-                }
-            }
-
-            // 惰性输出：逐字显示，每个字延迟15ms，显示纯文本
+            // 惰性输出：逐字显示，每个字延迟15ms
             async function lazyOutput(bubble, fullContent) {
                 for (let i = 0; i < fullContent.length; i++) {
                     bubble.textContent = fullContent.substring(0, i + 1);
@@ -2149,23 +1974,13 @@
                 }
             }
 
-            // 下载文本文件
-            function downloadTxt(content, filename) {
-                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-
             sendBtn.addEventListener('click', async () => {
                 const userMessage = messageInput.value.trim();
                 if (!userMessage && !selectedFile) return;
 
                 const timestamp = Date.now();
 
+                // 构建用户消息（包含文件内容）
                 let userContent = userMessage;
                 if (selectedFile && fileContent) {
                     userContent = `[文件: ${selectedFile.name}]\n\n${fileContent}\n\n${userMessage}`;
@@ -2250,12 +2065,7 @@
                                         if (settings.softOutput) {
                                             bubble.innerHTML = softOutputHtml(fullContent);
                                         } else {
-                                            // 实时渲染 Markdown（需要 marked 已加载）
-                                            if (window.marked) {
-                                                bubble.innerHTML = renderMarkdown(fullContent);
-                                            } else {
-                                                bubble.textContent = fullContent;
-                                            }
+                                            bubble.textContent = fullContent;
                                         }
                                         if (autoScrollEnabled) {
                                             messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -2276,27 +2086,11 @@
 
                     if (settings.lazyOutput) {
                         await lazyOutput(bubble, fullContent);
-                        // 惰性输出完成后，若 marked 已加载则渲染，否则保留纯文本
-                        if (window.marked) {
-                            bubble.innerHTML = renderMarkdown(fullContent);
-                        } else {
-                            bubble.textContent = fullContent;
-                        }
                     } else if (settings.softOutput) {
-                        if (window.marked) {
-                            bubble.innerHTML = renderMarkdown(fullContent);
-                        } else {
-                            bubble.textContent = fullContent;
-                        }
+                        bubble.textContent = fullContent;
                     } else {
-                        // 普通输出：如果 marked 未加载，需要重新渲染最终内容
-                        if (!window.marked) {
-                            bubble.textContent = fullContent;
-                        }
+                        bubble.textContent = fullContent;
                     }
-
-                    // 存储原始文本，供全屏使用
-                    bubble.dataset.originalContent = fullContent;
 
                     if (selectedFile) {
                         selectedFile = null;
@@ -2326,17 +2120,9 @@
                         fullscreenBtn.textContent = '🔍';
                         fullscreenBtn.title = '全屏查看';
                         fullscreenBtn.addEventListener('click', () => {
-                            openFullscreenText(bubble.dataset.originalContent);
+                            openFullscreenText(bubble.textContent);
                         });
                         footer.appendChild(fullscreenBtn);
-                        const downloadBtn = document.createElement('button');
-                        downloadBtn.className = 'download-btn';
-                        downloadBtn.textContent = '⬇️';
-                        downloadBtn.title = '下载为TXT';
-                        downloadBtn.addEventListener('click', () => {
-                            downloadTxt(bubble.textContent, `chatgr_${Date.now()}.txt`);
-                        });
-                        footer.appendChild(downloadBtn);
                         wrapper.appendChild(footer);
                     }
 
@@ -2364,14 +2150,7 @@
                 }
             });
 
-            /**
-             * 添加消息到界面
-             * @param {string} role 'user' 或 'ai'
-             * @param {string} content 原始内容
-             * @param {number} timestamp 时间戳
-             * @param {boolean} deferRender 是否延迟渲染（仅对AI消息有效）
-             */
-            function appendMessage(role, content, timestamp = null, deferRender = false) {
+            function appendMessage(role, content, timestamp = null) {
                 if (role === 'user' && settings.showTimestamp) {
                     const timeDiv = document.createElement('div');
                     timeDiv.className = 'time-divider';
@@ -2396,25 +2175,7 @@
                 }
                 const bubble = document.createElement('div');
                 bubble.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
-                
-                bubble.dataset.originalContent = content;
-
-                if (role === 'user') {
-                    bubble.textContent = content;
-                } else {
-                    if (deferRender) {
-                        bubble.textContent = content;
-                        observer.observe(bubble);
-                    } else {
-                        // 立即渲染（如刚发送完成的消息，此时 marked 应已加载）
-                        if (window.marked) {
-                            bubble.innerHTML = renderMarkdown(content);
-                        } else {
-                            bubble.textContent = content;
-                        }
-                        bubble.dataset.rendered = 'true';
-                    }
-                }
+                bubble.textContent = content;
                 wrapper.appendChild(bubble);
 
                 if (role === 'ai' && settings.toolbar && !content.startsWith('错误')) {
@@ -2439,17 +2200,9 @@
                     fullscreenBtn.textContent = '🔍';
                     fullscreenBtn.title = '全屏查看';
                     fullscreenBtn.addEventListener('click', () => {
-                        openFullscreenText(bubble.dataset.originalContent);
+                        openFullscreenText(bubble.textContent);
                     });
                     footer.appendChild(fullscreenBtn);
-                    const downloadBtn = document.createElement('button');
-                    downloadBtn.className = 'download-btn';
-                    downloadBtn.textContent = '⬇️';
-                    downloadBtn.title = '下载为TXT';
-                    downloadBtn.addEventListener('click', () => {
-                        downloadTxt(bubble.textContent, `chatgr_${Date.now()}.txt`);
-                    });
-                    footer.appendChild(downloadBtn);
                     wrapper.appendChild(footer);
                 }
 
